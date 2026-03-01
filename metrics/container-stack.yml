@@ -33,3 +33,4 @@ services:
 networks:
   metric-network:
     driver: bridge
+    name: metric-network

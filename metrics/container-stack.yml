@@ -1,6 +1,7 @@
 services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
     privileged: true
     ports:
       - "8080:8080"
@@ -15,6 +16,7 @@ services:
   
   prometheus:
     image: prom/prometheus:latest
+    container_name: prometheus
     ports:
       - "9090:9090"
     user: root
@@ -23,7 +25,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/:/etc/prometheus/
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.retention.time=15d'

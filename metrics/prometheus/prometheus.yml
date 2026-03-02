@@ -13,3 +13,7 @@ scrape_configs:
   - job_name: 'traefik'
     static_configs:
       - targets: ['traefik:8091']
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']

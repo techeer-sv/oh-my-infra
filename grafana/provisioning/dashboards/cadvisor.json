@@ -1,0 +1,227 @@
+{
+  "title": "cAdvisor Containers",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "templating": {
+    "list": [
+      {
+        "name": "container",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(container_cpu_usage_seconds_total{name!=''}, name)",
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Overview"
+    },
+    {
+      "type": "stat",
+      "title": "Total CPU",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{name!=\"\"}[1m]))"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Total Memory",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(container_memory_usage_bytes{name!=\"\"})"
+        }
+      ],
+      "gridPos": {
+        "x": 6,
+        "y": 1,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Containers",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "count(container_last_seen{name!=\"\"})"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "type": "barchart",
+      "title": "Top CPU",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "topk(3, rate(container_cpu_usage_seconds_total{name!=\"\"}[1m]))",
+          "legendFormat": "{{name}}"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "type": "barchart",
+      "title": "Top Memory",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "topk(3, container_memory_usage_bytes{name!=\"\"})",
+          "legendFormat": "{{name}}"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "type": "row",
+      "title": "Container",
+      "repeat": "container"
+    },
+    {
+      "type": "gauge",
+      "title": "CPU %",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "(rate(container_cpu_usage_seconds_total{name=\"$container\"}[1m])) / (container_spec_cpu_quota{name=\"$container\"} / container_spec_cpu_period{name=\"$container\"}) * 100"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "value": 60,
+                "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "Memory %",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "container_memory_usage_bytes{name=\"$container\"} / container_spec_memory_limit_bytes{name=\"$container\"} * 100"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "value": 60,
+                "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 20,
+        "w": 6,
+        "h": 6
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU usage vs limit",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(container_cpu_usage_seconds_total{name=\"$container\"}[1m])",
+          "legendFormat": "usage"
+        },
+        {
+          "expr": "container_spec_cpu_quota{name=\"$container\"} / container_spec_cpu_period{name=\"$container\"}",
+          "legendFormat": "limit"
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 26,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Memory usage vs limit",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "container_memory_usage_bytes{name=\"$container\"}",
+          "legendFormat": "usage"
+        },
+        {
+          "expr": "container_spec_memory_limit_bytes{name=\"$container\"}",
+          "legendFormat": "limit"
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 26,
+        "w": 12,
+        "h": 8
+      }
+    }
+  ]
+}

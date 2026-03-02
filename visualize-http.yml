@@ -52,7 +52,7 @@ services:
       - traefik-network
       - grafana-network
     cpus: "0.5"
-    mem_limit: "1Gi"
+    mem_limit: "1G"
 
 volumes:
   grafana-data:

@@ -1,0 +1,67 @@
+services:
+  traefik:
+    image: traefik:v3.6.9
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=DEBUG"
+      - "--accesslog=true"
+      - "--accesslog.bufferingsize=100"
+      - "--accesslog.format=json"
+      - "--accesslog.fields.defaultmode=keep"
+      - "--accesslog.fields.headers.defaultmode=keep"
+      - "--accesslog.fields.headers.names.X-Forwarded-For=keep"
+      - "--api.dashboard=true"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000"
+      - "--metrics.prometheus.addEntryPointsLabels=true"
+      - "--metrics.prometheus.addServicesLabels=true"
+      - "--entryPoints.metrics.address=:8091"
+      - "--metrics.prometheus.entryPoint=metrics"
+      - "--tracing=true"
+      - "--tracing.otlp=true"
+      - "--tracing.otlp.grpc.insecure=true"
+      - "--tracing.otlp.grpc.endpoint=${TRACING_ENDPOINT}"
+      - "--tracing.serviceName=traefik"
+      - "--tracing.sampleRate=1.0"
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "8091:8091"
+    networks:
+      - traefik-network
+      - metric-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+  
+  grafana:
+    image: grafana/grafana:12.4
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    restart: unless-stopped
+    networks:
+      - traefik-network
+      - grafana-network
+
+volumes:
+  grafana-data:
+
+networks:
+  traefik-network:
+    driver: bridge
+    name: traefik-network
+  metric-network:
+    external: true
+    name: metric-network
+  grafana-network:
+    external: true
+    name: grafana-network

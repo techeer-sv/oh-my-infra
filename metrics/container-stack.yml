@@ -1,6 +1,6 @@
 services:
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.56.2
     container_name: cadvisor
     privileged: true
     ports:
@@ -15,13 +15,14 @@ services:
     restart: unless-stopped
   
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.10.0
     container_name: prometheus
     ports:
       - "9090:9090"
     user: root
     networks:
       - metric-network
+      - grafana-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -36,3 +37,6 @@ networks:
   metric-network:
     driver: bridge
     name: metric-network
+  grafana-network:
+    driver: bridge
+    name: grafana-network

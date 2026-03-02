@@ -35,6 +35,8 @@ services:
       - '--storage.tsdb.retention.size=3GB'
       - '--web.enable-lifecycle'
     restart: unless-stopped
+    cpus: "0.5"
+    mem_limit: "1Gi"
 
 networks:
   metric-network:

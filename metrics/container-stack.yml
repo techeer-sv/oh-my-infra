@@ -14,7 +14,7 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
     restart: unless-stopped
     cpus: "0.5"
-    memory: "500m"
+    mem_limit: "500m"
   
   prometheus:
     image: prom/prometheus:v3.10.0

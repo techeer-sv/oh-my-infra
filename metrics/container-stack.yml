@@ -32,6 +32,7 @@ services:
       - '--storage.tsdb.retention.time=15d'
       - '--storage.tsdb.retention.size=3GB'
       - '--web.enable-lifecycle'
+    restart: unless-stopped
 
 networks:
   metric-network:

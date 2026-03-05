@@ -39,9 +39,9 @@ services:
     mem_limit: "1G"
 
 networks:
-  metric-network:
+  metrics-network:
     driver: bridge
-    name: metric-network
+    name: metrics-network
   grafana-network:
     driver: bridge
     name: grafana-network

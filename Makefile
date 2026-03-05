@@ -16,17 +16,17 @@ help:
 .PHONY: networks
 networks:
 	@echo "도커 네트워크 생성 중..."
-	bash /scripts/create-docker-networks.sh
+	bash ./scripts/create-networks.sh
 
 .PHONY: daemon
 daemon:
 	@echo "도커 데몬 설정 중..."
-	bash /scripts/start-docker-daemon.sh
+	bash ./scripts/daemon.sh
 
 .PHONY: prom-reload
 prom-reload:
 	@echo "프로메테우스 설정 리로드 중..."
-	bash /scripts/reload-prometheus.sh
+	bash ./scripts/reload.sh
 
 .PHONY: clean
 clean:
@@ -37,29 +37,29 @@ clean:
 .PHONY: stop-all
 stop-all:
 	@echo "모든 도커 컨테이너 멈추는중..."
-	docker stop $(docker ps -q)
+	docker stop $(shell docker ps -q)
 
 .PHONY: metrics
 metrics:
 	@echo "메트릭 컴포즈 실행 중..."
-	docker compose -f /metrics/metrics-stack.yml up -d
+	docker compose -f ./metrics/metrics-stack.yml up -d
 
 .PHONY: logging
 logging:
 	@echo "로깅 컴포즈 실행 중..."
-	docker compose -f /logging/logging-stack.yml up -d
+	docker compose -f ./logging/logging-stack.yml up -d
 
 .PHONY: tracing
 tracing:
 	@echo "트레이싱 컴포즈 실행 중..."
-	docker compose -f /tracing/tracing-stack.yml up -d
+	docker compose -f ./tracing/tracing-stack.yml up -d
 
 .PHONY: http
 http:
 	@echo "HTTP 컴포즈 실행 중..."
-	docker compose -f /http/visualize-http.yml up -d
+	docker compose -f ./visualize/http.yml up -d
 
 .PHONY: https
 https:
 	@echo "HTTPS 컴포즈 실행 중..."
-	docker compose -f /https/visualize-https.yml up -d
+	docker compose -f ./visualize/https.yml up -d

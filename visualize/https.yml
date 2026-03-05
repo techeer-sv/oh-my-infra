@@ -3,10 +3,16 @@ services:
     image: traefik:v3.6.9
     container_name: traefik
     command:
-      - "--api.insecure=true"
+      - "--api.insecure=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--entryPoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entryPoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesResolvers.letsencrypt.acme.tlsChallenge=true"
+      - "--certificatesResolvers.letsencrypt.acme.email={YOUR_EMAIL}@gmail.com"
+      - "--certificatesResolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--log.level=DEBUG"
       - "--accesslog=true"
       - "--accesslog.bufferingsize=100"
@@ -28,13 +34,14 @@ services:
       - "--tracing.serviceName=traefik"
       - "--tracing.sampleRate=1.0"
     ports:
-      - "80:80"
+      - "443:443"
       - "8090:8080"
       - "8091:8091"
     networks:
       - traefik-network
-      - metric-network
+      - metrics-network
     volumes:
+      - traefik-certificates:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
     cpus: "0.5"
@@ -66,9 +73,9 @@ networks:
   tracing-network:
     external: true
     name: tracing-network
-  metric-network:
+  metrics-network:
     external: true
-    name: metric-network
+    name: metrics-network
   grafana-network:
     external: true
     name: grafana-network

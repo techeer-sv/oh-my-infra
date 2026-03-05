@@ -108,7 +108,7 @@ services:
   alloy:
     image: grafana/alloy:v1.13.2
     container_name: alloy
-    command: run /etc/alloy/config.river
+    command: run /etc/alloy/config.river --log.level=debug
     networks:
       - logging-network
     volumes:

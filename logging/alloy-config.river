@@ -1,4 +1,10 @@
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
 discovery.relabel "log_filter" {
+  targets = discovery.docker.containers.targets
+
   rule {
     source_labels = ["container_label_logging"]
     regex  = "enabled"
@@ -7,8 +13,8 @@ discovery.relabel "log_filter" {
 }
 
 loki.source.docker "containers" {
-  host = "unix:///var/run/docker.sock"
-
+  host    = "unix:///var/run/docker.sock"
+  targets = discovery.relabel.log_filter.targets
   relabel_rules = discovery.relabel.log_filter.rules
 
   forward_to = [loki.write.default.receiver]

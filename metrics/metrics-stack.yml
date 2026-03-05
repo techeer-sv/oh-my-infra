@@ -6,7 +6,7 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - metric-network
+      - metrics-network
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -23,7 +23,7 @@ services:
       - "9090:9090"
     user: root
     networks:
-      - metric-network
+      - metrics-network
       - grafana-network
     extra_hosts:
       - "host.docker.internal:host-gateway"

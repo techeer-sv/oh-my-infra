@@ -57,9 +57,9 @@ Docker Compose 기반의 통합 관측성(Observability) 스택입니다. 메트
           │                 │ (label: logging=enabled)
           ▼                 │
   ┌───────────────┐         │
-  │   cAdvisor   │         │
-  │ Docker daemon│─────────┘
-  │   Traefik    │  (메트릭 스크래핑 대상)
+  │   cAdvisor    │         │
+  │ Docker daemon │─────────┘
+  │   Traefik     │  (메트릭 스크래핑 대상)
   └───────────────┘
 ```
 

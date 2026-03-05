@@ -108,11 +108,11 @@ services:
   alloy:
     image: grafana/alloy:v1.13.2
     container_name: alloy
-    command: run /etc/alloy/config.river --log.level=debug
+    command: run /etc/alloy/config.alloy
     networks:
       - logging-network
     volumes:
-      - ./alloy-config.river:/etc/alloy/config.river
+      - ./alloy-config.alloy:/etc/alloy/config.alloy
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     depends_on:

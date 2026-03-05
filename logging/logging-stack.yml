@@ -94,7 +94,7 @@ services:
     mem_limit: "300m"
 
   alloy:
-    image: grafana/alloy:1.13.2
+    image: grafana/alloy:v1.13.2
     command: run /etc/alloy/config.river
     networks:
       - logging-network

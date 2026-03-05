@@ -11,6 +11,7 @@ common:
     kvstore:
       store: memberlist
   compactor_grpc_address: loki-backend:9095
+  instance_addr: query-frontend
 
 memberlist:
   join_members:

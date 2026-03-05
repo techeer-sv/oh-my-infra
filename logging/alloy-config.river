@@ -7,10 +7,8 @@ loki.source.docker "containers" {
   targets = discovery.docker.containers.targets
   forward_to = [loki.write.default.receiver]
 
-  filter {
-    labels = {
-      "logging" = "enabled",
-    }
+  include_labels = {
+    "logging" = "enabled",
   }
 }
 

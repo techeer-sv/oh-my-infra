@@ -10,8 +10,9 @@ common:
   ring:
     kvstore:
       store: memberlist
-  compactor_grpc_address: loki-backend:9095
-  instance_addr: query-frontend
+    instance_interface_names:
+      - eth0
+  
 
 memberlist:
   join_members:

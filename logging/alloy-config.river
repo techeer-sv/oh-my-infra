@@ -12,7 +12,7 @@ loki.source.docker "containers" {
       source_labels = ["container_label_logging"],
       regex = "enabled",
       action = "keep",
-    }
+    },
   ]
 }
 

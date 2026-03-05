@@ -14,7 +14,7 @@ discovery.relabel "log_filter" {
 
 loki.source.docker "containers" {
   host    = "unix:///var/run/docker.sock"
-  targets = discovery.relabel.log_filter.targets
+  targets = targets = discovery.docker.containers.targets
   relabel_rules = discovery.relabel.log_filter.rules
 
   forward_to = [loki.write.default.receiver]

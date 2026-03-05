@@ -12,6 +12,7 @@ common:
       store: memberlist
     instance_interface_names:
       - eth0
+  compactor_grpc_address: loki-backend:9095
   
 
 memberlist:

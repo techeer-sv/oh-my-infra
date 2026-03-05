@@ -39,7 +39,9 @@ services:
     restart: unless-stopped
     cpus: "0.5"
     mem_limit: "500m"
-  
+    labels:
+      logging: enabled
+
   grafana:
     image: grafana/grafana:12.4
     container_name: grafana
@@ -59,8 +61,11 @@ volumes:
 
 networks:
   traefik-network:
-    driver: bridge
+    external: true
     name: traefik-network
+  tracing-network:
+    external: true
+    name: tracing-network
   metric-network:
     external: true
     name: metric-network

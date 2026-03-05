@@ -1,0 +1,119 @@
+services:
+
+  minio:
+    image: minio/minio:latest
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - "9000:9000"
+    networks:
+      - logging-network
+    volumes:
+      - minio-data:/data
+    cpus: "1"
+    mem_limit: "1000m"
+    labels:
+      logging: enabled
+
+  minio-init:
+    image: minio/mc
+    networks:
+      - logging-network
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      mc alias set local http://minio:9000 minio minio123;
+      mc mb -p local/loki;
+      mc policy set public local/loki;
+      exit 0;
+      "
+
+  loki-write:
+    image: grafana/loki:3.6.7
+    command: -config.file=/etc/loki/loki.yaml -target=write
+    networks:
+      - logging-network
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki.yaml
+    depends_on:
+      - minio
+    cpus: "0.5"
+    mem_limit: "300m"
+
+  loki-read:
+    image: grafana/loki:3.6.7
+    command: -config.file=/etc/loki/loki.yaml -target=read
+    networks:
+      - logging-network
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki.yaml
+    depends_on:
+      - loki-write
+    cpus: "0.5"
+    mem_limit: "300m"
+
+  loki-backend:
+    image: grafana/loki:3.6.7
+    command: -config.file=/etc/loki/loki.yaml -target=backend
+    networks:
+      - logging-network
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki.yaml
+    depends_on:
+      - minio
+    cpus: "0.5"
+    mem_limit: "300m"
+
+  query-scheduler:
+    image: grafana/loki:3.6.7
+    command: -config.file=/etc/loki/loki.yaml -target=query-scheduler
+    networks:
+      - logging-network
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki.yaml
+    cpus: "0.5"
+    mem_limit: "300m"
+
+  query-frontend:
+    image: grafana/loki:3.6.7
+    command: -config.file=/etc/loki/loki.yaml -target=query-frontend
+    networks:
+      - logging-network
+      - grafana-network
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki.yaml
+    ports:
+      - "3100:3100"
+    depends_on:
+      - query-scheduler
+    cpus: "0.5"
+    mem_limit: "300m"
+
+  alloy:
+    image: grafana/alloy:1.13.2
+    command: run /etc/alloy/config.river
+    networks:
+      - logging-network
+    volumes:
+      - ./alloy-config.river:/etc/alloy/config.river
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    depends_on:
+      - loki-write
+    cpus: "0.5"
+    mem_limit: "300m"
+
+volumes:
+  minio-data:
+
+networks:
+  logging-network:
+    external: true
+    name: logging-network
+  grafana-network:
+    external: true
+    name: grafana-network

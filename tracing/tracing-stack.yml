@@ -1,0 +1,8 @@
+services:
+  # otel nedds to connect to containers it wants to collect. use tracing-network
+  # jaeger needs to be connected to tracing-network and grafana network to visualize traces
+
+networks:
+  tracing-network:
+    external: true
+    name: tracing-network

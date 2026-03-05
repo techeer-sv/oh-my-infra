@@ -1,5 +1,5 @@
 #!/bin/bash
-# File: reload-prometheus.sh
+# File: reload.sh
 # Purpose: Reload Prometheus configuration
 
 curl -X POST http://127.0.0.1:9090/-/reload

@@ -1,5 +1,5 @@
 #!/bin/bash
-# File: enable-docker-metrics.sh
+# File: enable.sh
 # Purpose: Enable Docker Engine metrics on 0.0.0.0:9323 and restart Docker
 
 set -e

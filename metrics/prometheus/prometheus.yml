@@ -17,3 +17,7 @@ scrape_configs:
   - job_name: 'prometheus'
     static_configs:
       - targets: ['prometheus:9090']
+  
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['query-frontend:3100']

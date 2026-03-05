@@ -1,40 +1,37 @@
 discovery.docker "containers" {
-  host = "unix:///var/run/docker.sock"
+    host = "unix:///var/run/docker.sock"
 }
 
 discovery.relabel "log_filter" {
-  targets = discovery.docker.containers.targets
+    targets = discovery.docker.containers.targets
 
-  # Only ship containers with logging enabled
-  rule {
-    source_labels = ["container_label_logging"]
-    regex  = "enabled"
-    action = "keep"
-  }
+    rule {
+        source_labels = ["container_label_logging"]
+        regex  = "enabled"
+        action = "keep"
+    }
 
-  # Set service_name for Loki
   rule {
-    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
-    target_label  = "service_name"
-  }
+        source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+        target_label  = "service_name"
+    }
 
-  # Optionally set container label
   rule {
-    source_labels = ["__meta_docker_container_name"]
-    target_label  = "container"
-  }
+        source_labels = ["__meta_docker_container_name"]
+        target_label  = "container"
+    }
 }
 
 loki.source.docker "containers" {
-  host          = "unix:///var/run/docker.sock"
-  targets       = discovery.relabel.log_filter.targets
-  relabel_rules = discovery.relabel.log_filter.rules
+    host          = "unix:///var/run/docker.sock"
+    targets       = discovery.relabel.log_filter.targets
+    relabel_rules = discovery.relabel.log_filter.rules
 
-  forward_to = [loki.write.default.receiver]
+    forward_to = [loki.write.default.receiver]
 }
 
 loki.write "default" {
-  endpoint {
-    url = "http://loki-write:3100/loki/api/v1/push"
-  }
+    endpoint {
+        url = "http://loki-write:3100/loki/api/v1/push"
+    }
 }

@@ -2,16 +2,20 @@ discovery.docker "containers" {
   host = "unix:///var/run/docker.sock"
 }
 
-loki.source.docker "containers" {
-  host = "unix:///var/run/docker.sock"
+discovery.relabel "log_filter" {
   targets = discovery.docker.containers.targets
-  forward_to = [loki.write.default.receiver]
 
-  relabel_rules {
+  rule {
     source_labels = ["container_label_logging"]
-    regex         = "enabled"
-    action        = "keep"
+    regex  = "enabled"
+    action = "keep"
   }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.log_filter.targets
+  forward_to = [loki.write.default.receiver]
 }
 
 loki.write "default" {

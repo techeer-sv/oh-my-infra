@@ -9,7 +9,7 @@ loki.source.docker "containers" {
 
   filter {
     labels = {
-      "logging" = "enabled"
+      "logging" = "enabled",
     }
   }
 }

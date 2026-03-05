@@ -2,6 +2,7 @@ services:
 
   minio:
     image: minio/minio:latest
+    container_name: minio
     command: server /data
     environment:
       MINIO_ROOT_USER: minio
@@ -12,6 +13,7 @@ services:
       - logging-network
     volumes:
       - minio-data:/data
+    restart: unless-stopped
     cpus: "1"
     mem_limit: "1000m"
     labels:
@@ -19,6 +21,7 @@ services:
 
   minio-init:
     image: minio/mc
+    container_name: minio-init
     networks:
       - logging-network
     depends_on:
@@ -34,6 +37,7 @@ services:
 
   loki-write:
     image: grafana/loki:3.6.7
+    container_name: loki-write
     command: -config.file=/etc/loki/loki.yaml -target=write
     networks:
       - logging-network
@@ -41,11 +45,13 @@ services:
       - ./loki-config.yaml:/etc/loki/loki.yaml
     depends_on:
       - minio
+    restart: unless-stopped
     cpus: "0.5"
     mem_limit: "300m"
 
   loki-read:
     image: grafana/loki:3.6.7
+    container_name: loki-read
     command: -config.file=/etc/loki/loki.yaml -target=read
     networks:
       - logging-network
@@ -53,11 +59,13 @@ services:
       - ./loki-config.yaml:/etc/loki/loki.yaml
     depends_on:
       - loki-write
+    restart: unless-stopped
     cpus: "0.5"
     mem_limit: "300m"
 
   loki-backend:
     image: grafana/loki:3.6.7
+    container_name: loki-backend
     command: -config.file=/etc/loki/loki.yaml -target=backend
     networks:
       - logging-network
@@ -65,21 +73,25 @@ services:
       - ./loki-config.yaml:/etc/loki/loki.yaml
     depends_on:
       - minio
+    restart: unless-stopped
     cpus: "0.5"
     mem_limit: "300m"
 
   query-scheduler:
     image: grafana/loki:3.6.7
+    container_name: query-scheduler
     command: -config.file=/etc/loki/loki.yaml -target=query-scheduler
     networks:
       - logging-network
     volumes:
       - ./loki-config.yaml:/etc/loki/loki.yaml
+    restart: unless-stopped
     cpus: "0.5"
     mem_limit: "300m"
 
   query-frontend:
     image: grafana/loki:3.6.7
+    container_name: query-frontend
     command: -config.file=/etc/loki/loki.yaml -target=query-frontend
     networks:
       - logging-network
@@ -90,11 +102,13 @@ services:
       - "3100:3100"
     depends_on:
       - query-scheduler
+    restart: unless-stopped
     cpus: "0.5"
     mem_limit: "300m"
 
   alloy:
     image: grafana/alloy:v1.13.2
+    container_name: alloy
     command: run /etc/alloy/config.river
     networks:
       - logging-network
@@ -104,6 +118,7 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     depends_on:
       - loki-write
+    restart: unless-stopped
     cpus: "0.5"
     mem_limit: "300m"
 

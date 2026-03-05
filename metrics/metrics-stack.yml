@@ -40,8 +40,8 @@ services:
 
 networks:
   metrics-network:
-    driver: bridge
+    external: true
     name: metrics-network
   grafana-network:
-    driver: bridge
+    external: true
     name: grafana-network

@@ -7,13 +7,11 @@ loki.source.docker "containers" {
   targets = discovery.docker.containers.targets
   forward_to = [loki.write.default.receiver]
 
-  relabel_rules = [
-    {
-      source_labels = ["container_label_logging"],
-      regex = "enabled",
-      action = "keep",
-    },
-  ]
+  relabel_rules = {
+                    source_labels = ["container_label_logging"],
+                    regex = "enabled",
+                    action = "keep",
+                }
 }
 
 loki.write "default" {

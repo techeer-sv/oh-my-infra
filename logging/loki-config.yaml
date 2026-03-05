@@ -10,6 +10,7 @@ common:
   ring:
     kvstore:
       store: memberlist
+  compactor_grpc_address: loki-backend:9095
 
 memberlist:
   join_members:
@@ -47,4 +48,3 @@ limits_config:
 compactor:
   working_directory: /loki/compactor
   compaction_interval: 5m
-  compactor_grpc_address: loki-backend:9095

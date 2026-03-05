@@ -8,9 +8,9 @@ loki.source.docker "containers" {
   forward_to = [loki.write.default.receiver]
 
   relabel_rules {
-    source_labels = ["container_label_logging"],
-    regex         = "enabled",
-    action        = "keep",
+    source_labels = ["container_label_logging"]
+    regex         = "enabled"
+    action        = "keep"
   }
 }
 

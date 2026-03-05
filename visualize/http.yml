@@ -51,6 +51,7 @@ services:
       - grafana-data:/var/lib/grafana
     restart: unless-stopped
     networks:
+      - logging-network
       - traefik-network
       - grafana-network
     cpus: "0.5"
@@ -72,3 +73,6 @@ networks:
   grafana-network:
     external: true
     name: grafana-network
+  logging-network:
+    external: true
+    name: logging-network

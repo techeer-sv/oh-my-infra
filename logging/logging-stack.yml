@@ -95,7 +95,6 @@ services:
     command: -config.file=/etc/loki/loki.yaml -target=query-frontend
     networks:
       - logging-network
-      - grafana-network
     volumes:
       - ./loki-config.yaml:/etc/loki/loki.yaml
     ports:
@@ -129,6 +128,3 @@ networks:
   logging-network:
     external: true
     name: logging-network
-  grafana-network:
-    external: true
-    name: grafana-network

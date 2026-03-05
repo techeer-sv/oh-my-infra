@@ -7,8 +7,10 @@ loki.source.docker "containers" {
   targets = discovery.docker.containers.targets
   forward_to = [loki.write.default.receiver]
 
-  include_labels = {
-    "logging" = "enabled",
+  relabel_rules {
+    label = "__meta_docker_container_label_logging"
+    action = "keep"
+    regex = "enabled"
   }
 }
 

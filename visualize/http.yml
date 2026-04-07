@@ -45,8 +45,6 @@ services:
   grafana:
     image: grafana/grafana:12.4
     container_name: grafana
-    ports:
-      - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
     restart: unless-stopped
@@ -56,6 +54,12 @@ services:
       - grafana-network
     cpus: "0.5"
     mem_limit: "1G"
+    labels:
+      logging: enabled
+      traefik.enable: "true"
+      traefik.http.services.grafana.loadbalancer.server.port: "3000"
+      traefik.http.routers.grafana.rule: "PathPrefix(`/`)"
+      traefik.http.routers.grafana.entrypoints: "web"
 
 volumes:
   grafana-data:

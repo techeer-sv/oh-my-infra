@@ -54,3 +54,4 @@ compactor:
 
 ui:
   enabled: true
+  debug: true

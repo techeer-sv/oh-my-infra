@@ -51,3 +51,6 @@ limits_config:
 compactor:
   working_directory: /loki/compactor
   compaction_interval: 5m
+
+ui:
+  enabled: true

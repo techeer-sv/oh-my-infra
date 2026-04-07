@@ -105,6 +105,22 @@ services:
     cpus: "0.5"
     mem_limit: "300m"
 
+  loki-ui:
+    image: grafana/loki:3.6.7
+    container_name: loki-ui
+    command: -config.file=/etc/loki/loki.yaml -target=ui
+    networks:
+      - logging-network
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki.yaml
+    ports:
+      - "3101:3100"
+    depends_on:
+      - query-frontend
+    restart: unless-stopped
+    cpus: "0.5"
+    mem_limit: "300m"
+
   alloy:
     image: grafana/alloy:v1.13.2
     container_name: alloy

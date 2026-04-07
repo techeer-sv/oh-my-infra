@@ -117,7 +117,7 @@ Grafana에서 사용가능한 `Loki Operational UI` 플러그인을 사용할수
 
 - query-frontend에 의존하여 실행됩니다.
 - `http://localhost:3101`로 접근합니다.
-- Datasource에 `http://loki-ui:3101`를 추가해주면 됩니다
+- Datasource에 `http://loki-ui:3100`를 추가해주면 됩니다
 - 공식문서: https://grafana.com/grafana/plugins/grafana-lokioperational-app/
 
 리소스 제한: CPU 0.5코어, 메모리 300MB

@@ -1,8 +1,97 @@
 services:
-  # otel nedds to connect to containers it wants to collect. use tracing-network
-  # jaeger needs to be connected to tracing-network and grafana network to visualize traces
+  scylla:
+    image: scylladb/scylla:6.2
+    container_name: scylla
+    command: --smp 1 --memory 512M --overprovisioned 1 --developer-mode 1
+    networks:
+      - tracing-network
+    volumes:
+      - scylla-data:/var/lib/scylla
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'describe keyspaces'"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    restart: unless-stopped
+    cpus: "1"
+    mem_limit: "768m"
+
+  jaeger-schema-init:
+    image: jaegertracing/jaeger-cassandra-schema:latest
+    container_name: jaeger-schema-init
+    environment:
+      CASSANDRA_PROTOCOL_VERSION: 4
+      CASSANDRA_VERSION: 4
+      CQLSH_HOST: scylla
+      DATACENTER: datacenter1
+      MODE: test
+      KEYSPACE: jaeger_v1_dc1
+      REPLICATION_FACTOR: 1
+    networks:
+      - tracing-network
+    depends_on:
+      scylla:
+        condition: service_healthy
+    restart: on-failure
+
+  jaeger-collector:
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.17.0
+    container_name: jaeger-collector
+    command: ["--config=/etc/jaeger/config.yaml"]
+    volumes:
+      - ./jaeger-collector-config.yaml:/etc/jaeger/config.yaml
+    networks:
+      - tracing-network
+    depends_on:
+      jaeger-schema-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    cpus: "0.5"
+    mem_limit: "512m"
+
+  jaeger-query:
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.17.0
+    container_name: jaeger-query
+    command: ["--config=/etc/jaeger/config.yaml"]
+    volumes:
+      - ./jaeger-query-config.yaml:/etc/jaeger/config.yaml
+    ports:
+      - "16686:16686"
+    networks:
+      - tracing-network
+      - grafana-network
+    depends_on:
+      jaeger-schema-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    cpus: "0.3"
+    mem_limit: "256m"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.149.0
+    container_name: otel-collector
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./otel-config.yaml:/etc/otel/config.yaml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - tracing-network
+    depends_on:
+      - jaeger-collector
+    restart: unless-stopped
+    cpus: "0.3"
+    mem_limit: "256m"
+
+volumes:
+  scylla-data:
 
 networks:
   tracing-network:
     external: true
     name: tracing-network
+  grafana-network:
+    external: true
+    name: grafana-network

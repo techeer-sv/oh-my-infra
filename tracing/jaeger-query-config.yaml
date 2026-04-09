@@ -1,0 +1,24 @@
+service:
+  extensions: [jaeger_storage, jaeger_query]
+
+extensions:
+  jaeger_storage:
+    backends:
+      cassandra_store:
+        cassandra:
+          schema:
+            keyspace: jaeger_v1_dc1
+          connection:
+            servers:
+              - scylla
+            local_dc: datacenter1
+            port: 9042
+            consistency: ONE
+
+  jaeger_query:
+    storage:
+      traces: cassandra_store
+    http:
+      endpoint: 0.0.0.0:16686
+    grpc:
+      endpoint: 0.0.0.0:16685

@@ -8,11 +8,16 @@ extensions:
         cassandra:
           schema:
             keyspace: jaeger_v1_dc1
+            datacenter: datacenter1
+            trace_ttl: 72h
+            dependencies_ttl: 48d
+            compaction_window: 2h
+            replication_factor: 1
           connection:
             servers:
-              - scylla
-            local_dc: datacenter1
-            port: 9042
+              - scylla:9042
+            tls:
+              insecure: true
 
   jaeger_query:
     storage:

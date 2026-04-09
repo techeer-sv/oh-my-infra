@@ -15,7 +15,7 @@ extensions:
             keyspace: jaeger_v1_dc1
             datacenter: datacenter1
             trace_ttl: 72h
-            dependencies_ttl: 48d
+            dependencies_ttl: 1152h
             compaction_window: 2h
             replication_factor: 1
           connection:

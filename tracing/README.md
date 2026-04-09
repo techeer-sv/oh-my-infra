@@ -37,6 +37,14 @@ OTEL Collector로부터 트레이스를 받아 ScyllaDB에 저장합니다. Jaeg
 - **처리**: batch 프로세서로 묶음 처리
 - **저장**: `cassandra_store` → ScyllaDB (`jaeger_v1_dc1` 키스페이스)
 
+Cassandra 스키마 설정:
+- **Datacenter**: `datacenter1`
+- **Trace TTL**: 72시간 (만료된 트레이스 자동 삭제)
+- **Dependencies TTL**: 48일
+- **Compaction Window**: 2시간 (TWCS 기반 압축 주기)
+- **복제 계수**: 1
+- **연결**: `scylla:9042`, TLS 비활성화
+
 리소스 제한: CPU 0.5코어, 메모리 512MB
 
 ### jaeger-query (v2.17.0) — 트레이스 쿼리 UI
@@ -51,7 +59,7 @@ ScyllaDB에 저장된 트레이스를 조회하는 서비스입니다. Jaeger UI
 | `16685` | gRPC API (Grafana 데이터소스 연결용) |
 
 주요 설정:
-- **스토리지**: ScyllaDB `cassandra_store` (consistency: ONE)
+- **스토리지**: ScyllaDB `cassandra_store` (jaeger-collector와 동일한 스키마 설정 공유)
 - Grafana에서 Jaeger 데이터소스로 연결 시 `http://jaeger-query:16686` 사용
 
 리소스 제한: CPU 0.3코어, 메모리 256MB

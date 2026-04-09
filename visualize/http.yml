@@ -24,7 +24,7 @@ services:
       - "--tracing=true"
       - "--tracing.otlp=true"
       - "--tracing.otlp.grpc.insecure=true"
-      - "--tracing.otlp.grpc.endpoint=${TRACING_ENDPOINT}"
+      - "--tracing.otlp.grpc.endpoint=otel-collector:4317"
       - "--tracing.serviceName=traefik"
       - "--tracing.sampleRate=1.0"
     ports:
@@ -34,6 +34,7 @@ services:
     networks:
       - traefik-network
       - metrics-network
+      - tracing-network
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
@@ -52,6 +53,7 @@ services:
       - logging-network
       - traefik-network
       - grafana-network
+      - tracing-network
     cpus: "0.5"
     mem_limit: "1G"
     labels:

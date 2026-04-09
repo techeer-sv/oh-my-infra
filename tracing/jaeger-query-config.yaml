@@ -13,7 +13,6 @@ extensions:
               - scylla
             local_dc: datacenter1
             port: 9042
-            consistency: ONE
 
   jaeger_query:
     storage:

@@ -10,6 +10,7 @@ help:
 	@echo "  make metrics        - 메트릭 컴포즈 실행"
 	@echo "  make logging        - 로깅 컴포즈 실행"
 	@echo "  make tracing        - 트레이싱 컴포즈 실행"
+	@echo "  make profiling      - 프로파일링 컴포즈 실행"
 	@echo "  make http           - HTTP 컴포즈 실행"
 	@echo "  make https          - HTTPS 컴포즈 실행"
 
@@ -53,6 +54,11 @@ logging:
 tracing:
 	@echo "트레이싱 컴포즈 실행 중..."
 	docker compose -f ./tracing/tracing-stack.yml up -d
+
+.PHONY: profiling
+profiling:
+	@echo "프로파일링 컴포즈 실행 중..."
+	docker compose -f ./profiling/profiling-stack.yml up -d
 
 .PHONY: http
 http:

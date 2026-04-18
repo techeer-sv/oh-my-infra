@@ -1,0 +1,137 @@
+services:
+
+  pyroscope-minio:
+    image: minio/minio:latest
+    container_name: pyroscope-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - "9002:9000"
+      - "9003:9001"
+    networks:
+      - profiling-network
+    volumes:
+      - pyroscope-minio-data:/data
+    restart: unless-stopped
+    cpus: "0.5"
+    mem_limit: "500m"
+
+  pyroscope-minio-init:
+    image: minio/mc
+    container_name: pyroscope-minio-init
+    networks:
+      - profiling-network
+    depends_on:
+      - pyroscope-minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      mc alias set local http://pyroscope-minio:9000 minio minio123;
+      mc mb -p local/pyroscope;
+      mc policy set public local/pyroscope;
+      exit 0;
+      "
+
+  pyroscope-ingester:
+    image: grafana/pyroscope:1.21.0
+    container_name: pyroscope-ingester
+    command: -target=ingester -config.file=/etc/pyroscope/config.yaml
+    volumes:
+      - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
+    networks:
+      - profiling-network
+    depends_on:
+      pyroscope-minio-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    cpus: "0.5"
+    mem_limit: "512m"
+
+  pyroscope-distributor:
+    image: grafana/pyroscope:1.21.0
+    container_name: pyroscope-distributor
+    command: -target=distributor -config.file=/etc/pyroscope/config.yaml
+    volumes:
+      - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
+    ports:
+      - "4040:4040"
+    networks:
+      - profiling-network
+    depends_on:
+      - pyroscope-ingester
+    restart: unless-stopped
+    cpus: "0.3"
+    mem_limit: "256m"
+
+  pyroscope-store-gateway:
+    image: grafana/pyroscope:1.21.0
+    container_name: pyroscope-store-gateway
+    command: -target=store-gateway -config.file=/etc/pyroscope/config.yaml
+    volumes:
+      - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
+    networks:
+      - profiling-network
+    depends_on:
+      pyroscope-minio-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    cpus: "0.3"
+    mem_limit: "256m"
+
+  pyroscope-compactor:
+    image: grafana/pyroscope:1.21.0
+    container_name: pyroscope-compactor
+    command: -target=compactor -config.file=/etc/pyroscope/config.yaml
+    volumes:
+      - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
+    networks:
+      - profiling-network
+    depends_on:
+      pyroscope-minio-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    cpus: "0.3"
+    mem_limit: "256m"
+
+  pyroscope-querier:
+    image: grafana/pyroscope:1.21.0
+    container_name: pyroscope-querier
+    command: -target=querier -config.file=/etc/pyroscope/config.yaml
+    volumes:
+      - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
+    networks:
+      - profiling-network
+    depends_on:
+      - pyroscope-ingester
+      - pyroscope-store-gateway
+    restart: unless-stopped
+    cpus: "0.3"
+    mem_limit: "256m"
+
+  pyroscope-query-frontend:
+    image: grafana/pyroscope:1.21.0
+    container_name: pyroscope-query-frontend
+    command: -target=query-frontend -config.file=/etc/pyroscope/config.yaml
+    volumes:
+      - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
+    networks:
+      - profiling-network
+      - grafana-network
+    depends_on:
+      - pyroscope-querier
+    restart: unless-stopped
+    cpus: "0.3"
+    mem_limit: "256m"
+
+volumes:
+  pyroscope-minio-data:
+
+networks:
+  profiling-network:
+    external: true
+    name: profiling-network
+  grafana-network:
+    external: true
+    name: grafana-network

@@ -8,6 +8,8 @@ docker network create metrics-network
 sleep 1
 docker network create tracing-network
 sleep 1
+docker network create profiling-network
+sleep 1
 docker network create traefik-network
 sleep 1
 docker network create grafana-network

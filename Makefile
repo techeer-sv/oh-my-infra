@@ -13,6 +13,7 @@ help:
 	@echo "  make profiling      - 프로파일링 컴포즈 실행"
 	@echo "  make http           - HTTP 컴포즈 실행"
 	@echo "  make https          - HTTPS 컴포즈 실행"
+	@echo "  make server         - 서버 컴포즈 실행"
 
 .PHONY: networks
 networks:
@@ -69,3 +70,8 @@ http:
 https:
 	@echo "HTTPS 컴포즈 실행 중..."
 	docker compose -f ./visualize/https.yml up -d
+
+.PHONY: server
+server:
+	@echo "서버 컴포즈 실행 중..."
+	docker compose -f ./server/server-stack.yml up -d

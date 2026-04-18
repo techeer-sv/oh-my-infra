@@ -1,0 +1,41 @@
+services:
+  django-app:
+    build: .
+    container_name: django-app
+    ports:
+      - "8000:8000"
+    environment:
+      - OTEL_SERVICE_NAME=django-observability
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - PYROSCOPE_SERVER_ADDRESS=http://pyroscope-distributor:4040
+    networks:
+      - tracing-network
+      - metrics-network
+      - profiling-network
+      - traefik-network
+    restart: unless-stopped
+    cpus: "0.5"
+    mem_limit: "512m"
+    labels:
+      logging: enabled
+      traefik.enable: "true"
+      traefik.docker.network: "traefik-network"
+      traefik.http.services.django-app.loadbalancer.server.port: "8000"
+      traefik.http.routers.django-app.rule: "PathPrefix(`/django`)"
+      traefik.http.routers.django-app.entrypoints: "web"
+      traefik.http.routers.django-app.middlewares: "django-strip"
+      traefik.http.middlewares.django-strip.stripprefix.prefixes: "/django"
+
+networks:
+  tracing-network:
+    external: true
+    name: tracing-network
+  metrics-network:
+    external: true
+    name: metrics-network
+  profiling-network:
+    external: true
+    name: profiling-network
+  traefik-network:
+    external: true
+    name: traefik-network

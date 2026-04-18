@@ -21,3 +21,8 @@ scrape_configs:
   - job_name: 'loki'
     static_configs:
       - targets: ['query-frontend:3100']
+
+  - job_name: 'django-app'
+    static_configs:
+      - targets: ['django-app:8000']
+    metrics_path: '/metrics'

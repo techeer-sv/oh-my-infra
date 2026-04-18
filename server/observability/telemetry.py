@@ -6,12 +6,23 @@ from opentelemetry import metrics, trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.instrumentation.django import DjangoInstrumentor
-from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from pythonjsonlogger.json import JsonFormatter
+
+
+class _OtelContextFilter(logging.Filter):
+    def filter(self, record):
+        ctx = trace.get_current_span().get_span_context()
+        if ctx.is_valid:
+            record.otelTraceID = format(ctx.trace_id, "032x")
+            record.otelSpanID = format(ctx.span_id, "016x")
+        else:
+            record.otelTraceID = None
+            record.otelSpanID = None
+        return True
 
 
 def setup():
@@ -33,15 +44,15 @@ def setup():
     meter_provider = MeterProvider(resource=resource, metric_readers=[PrometheusMetricReader()])
     metrics.set_meter_provider(meter_provider)
 
-    # Auto-instrument Django requests and inject trace IDs into log records
+    # Auto-instrument Django requests
     DjangoInstrumentor().instrument()
-    LoggingInstrumentor().instrument(set_logging_format=False)
 
     # JSON structured logs → stdout → Alloy → Loki
     handler = logging.StreamHandler()
     handler.setFormatter(
         JsonFormatter("%(asctime)s %(levelname)s %(name)s %(message)s %(otelTraceID)s %(otelSpanID)s")
     )
+    handler.addFilter(_OtelContextFilter())
     root = logging.getLogger()
     root.handlers = [handler]
     root.setLevel(logging.INFO)

@@ -23,8 +23,6 @@ services:
       traefik.http.services.django-app.loadbalancer.server.port: "8000"
       traefik.http.routers.django-app.rule: "PathPrefix(`/django`)"
       traefik.http.routers.django-app.entrypoints: "web"
-      traefik.http.routers.django-app.middlewares: "django-strip"
-      traefik.http.middlewares.django-strip.stripprefix.prefixes: "/django"
 
 networks:
   tracing-network:

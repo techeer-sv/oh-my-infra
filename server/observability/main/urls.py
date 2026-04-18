@@ -26,9 +26,9 @@ def metrics(request):
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('example/', include('example.urls')),
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('metrics', metrics),
+    path('django/admin/', admin.site.urls),
+    path('django/example/', include('example.urls')),
+    path('django/api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('django/api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('django/metrics', metrics),
 ]

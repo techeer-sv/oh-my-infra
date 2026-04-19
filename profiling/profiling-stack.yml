@@ -118,7 +118,6 @@ services:
       - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
     networks:
       - profiling-network
-      - grafana-network
     depends_on:
       - pyroscope-querier
     restart: unless-stopped
@@ -132,6 +131,3 @@ networks:
   profiling-network:
     external: true
     name: profiling-network
-  grafana-network:
-    external: true
-    name: grafana-network

@@ -54,6 +54,7 @@ services:
       - traefik-network
       - grafana-network
       - tracing-network
+      - profiling-network
     cpus: "0.5"
     mem_limit: "1G"
     labels:
@@ -80,6 +81,9 @@ networks:
   grafana-network:
     external: true
     name: grafana-network
+  profiling-network:
+    external: true
+    name: profiling-network
   logging-network:
     external: true
     name: logging-network

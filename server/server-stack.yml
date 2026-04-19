@@ -8,6 +8,7 @@ services:
       - OTEL_SERVICE_NAME=django-observability
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - PYROSCOPE_SERVER_ADDRESS=http://pyroscope-distributor:4040
+      - DJANGO_LOG_LEVEL=DEBUG
     networks:
       - tracing-network
       - metrics-network

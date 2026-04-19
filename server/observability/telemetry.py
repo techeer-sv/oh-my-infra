@@ -55,7 +55,8 @@ def setup():
     handler.addFilter(_OtelContextFilter())
     root = logging.getLogger()
     root.handlers = [handler]
-    root.setLevel(logging.INFO)
+    root.setLevel(os.getenv("DJANGO_LOG_LEVEL", "INFO"))
+    logging.getLogger("pyroscope").setLevel(logging.DEBUG)
 
     # Flame graphs → Pyroscope distributor
     pyroscope.configure(

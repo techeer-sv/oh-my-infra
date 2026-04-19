@@ -1,7 +1,7 @@
 server:
   http_listen_port: 4040
   grpc_listen_port: 9095
-  log_level: info
+  log_level: debug
 
 storage:
   backend: s3

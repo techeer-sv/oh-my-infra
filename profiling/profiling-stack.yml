@@ -133,7 +133,6 @@ services:
       - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
     networks:
       - profiling-network
-      - grafana-network
     ports:
       - "4041:4040"
     depends_on:
@@ -149,6 +148,3 @@ networks:
   profiling-network:
     external: true
     name: profiling-network
-  grafana-network:
-    external: true
-    name: grafana-network

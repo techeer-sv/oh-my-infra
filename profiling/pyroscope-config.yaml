@@ -31,5 +31,3 @@ store_gateway:
       store: memberlist
     replication_factor: 1
 
-frontend_worker:
-  frontend_address: pyroscope-query-frontend:9095

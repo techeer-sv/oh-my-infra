@@ -59,7 +59,10 @@ def setup():
     logging.getLogger("pyroscope").setLevel(logging.DEBUG)
 
     # Flame graphs → Pyroscope distributor
+    # Python supports cpu (on-CPU time) and wall (wall-clock time, includes I/O waits)
     pyroscope.configure(
         application_name=service_name,
         server_address=os.getenv("PYROSCOPE_SERVER_ADDRESS", "http://localhost:4040"),
+        oncpu=True,   # CPU profiling
+        gil_only=False,  # include threads not holding the GIL (I/O, native calls)
     )

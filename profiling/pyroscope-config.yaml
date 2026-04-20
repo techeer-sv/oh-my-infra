@@ -16,7 +16,7 @@ memberlist:
   bind_port: 7946
   join_members:
     - pyroscope-ingester:7946
-  message-history-buffer-bytes: 1048576
+  message_history_buffer_bytes: 1048576
 
 ingester:
   lifecycler:

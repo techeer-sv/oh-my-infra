@@ -118,6 +118,8 @@ services:
       - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
     networks:
       - profiling-network
+    ports:
+      - "4041:4040"
     depends_on:
       - pyroscope-querier
     restart: unless-stopped

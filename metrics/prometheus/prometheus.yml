@@ -20,7 +20,7 @@ scrape_configs:
   
   - job_name: 'loki'
     static_configs:
-      - targets: ['query-frontend:3100']
+      - targets: ['loki-query-frontend:3100']
 
   - job_name: 'django-app'
     static_configs:

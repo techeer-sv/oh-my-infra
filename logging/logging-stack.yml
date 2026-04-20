@@ -1,8 +1,8 @@
 services:
 
-  minio:
+  loki-minio:
     image: minio/minio:latest
-    container_name: minio
+    container_name: loki-minio
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minio
@@ -20,17 +20,17 @@ services:
     labels:
       logging: enabled
 
-  minio-init:
+  loki-minio-init:
     image: minio/mc
-    container_name: minio-init
+    container_name: loki-minio-init
     networks:
       - logging-network
     depends_on:
-      - minio
+      - loki-minio
     entrypoint: >
       /bin/sh -c "
       sleep 5;
-      mc alias set local http://minio:9000 minio minio123;
+      mc alias set local http://loki-minio:9000 minio minio123;
       mc mb -p local/loki;
       mc policy set public local/loki;
       exit 0;
@@ -45,7 +45,7 @@ services:
     volumes:
       - ./loki-config.yaml:/etc/loki/loki.yaml
     depends_on:
-      - minio
+      - loki-minio
     restart: unless-stopped
     cpus: "0.5"
     mem_limit: "300m"
@@ -73,14 +73,14 @@ services:
     volumes:
       - ./loki-config.yaml:/etc/loki/loki.yaml
     depends_on:
-      - minio
+      - loki-minio
     restart: unless-stopped
     cpus: "0.5"
     mem_limit: "300m"
 
-  query-scheduler:
+  loki-query-scheduler:
     image: grafana/loki:3.6.7
-    container_name: query-scheduler
+    container_name: loki-query-scheduler
     command: -config.file=/etc/loki/loki.yaml -target=query-scheduler
     networks:
       - logging-network
@@ -90,9 +90,9 @@ services:
     cpus: "0.5"
     mem_limit: "300m"
 
-  query-frontend:
+  loki-query-frontend:
     image: grafana/loki:3.6.7
-    container_name: query-frontend
+    container_name: loki-query-frontend
     command: -config.file=/etc/loki/loki.yaml -target=query-frontend
     networks:
       - logging-network
@@ -101,7 +101,7 @@ services:
     ports:
       - "3100:3100"
     depends_on:
-      - query-scheduler
+      - loki-query-scheduler
     restart: unless-stopped
     cpus: "0.5"
     mem_limit: "300m"
@@ -117,7 +117,7 @@ services:
     ports:
       - "3101:3100"
     depends_on:
-      - query-frontend
+      - loki-query-frontend
     restart: unless-stopped
     cpus: "0.5"
     mem_limit: "300m"

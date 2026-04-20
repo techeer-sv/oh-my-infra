@@ -7,58 +7,61 @@ Docker Compose 기반의 통합 관측성(Observability) 스택입니다. 메트
 ## 전체 아키텍처
 
 ```
-                        외부 트래픽
+  Django App (server/)
+  ┌─────────────────────────────────────────────────────┐
+  │  gunicorn + OpenTelemetry + pyroscope-io            │
+  │  - Traces  → otel-collector:4317 (OTLP gRPC)       │
+  │  - Metrics → /metrics (Prometheus scrape)           │
+  │  - Logs    → stdout JSON → Alloy → Loki             │
+  │  - Flames  → pyroscope-distributor:4040             │
+  └─────────────────────────────────────────────────────┘
                              │
                              ▼
                       ┌─────────────┐
-                      │   Traefik   │  리버스 프록시 (port 80 / 443)
+                      │   Traefik   │  리버스 프록시 /django → django-app:8000
                       └──────┬──────┘
                              │
                              ▼
                       ┌─────────────┐
-                      │   Grafana   │  대시보드 시각화 (port 3000)
+                      │   Grafana   │  대시보드 시각화
                       └──────┬──────┘
                              │
-           ┌─────────────────┼──────────────────┐
-           │                 │                  │
-           ▼                 ▼                  ▼
-   ┌──────────────┐  ┌───────────────┐  ┌─────────────────┐
-   │  Prometheus  │  │query-frontend │  │    (tracing)    │
-   │  (port 9090) │  │  (port 3100)  │  │    미구현        │
-   └──────┬───────┘  └───────┬───────┘  └─────────────────┘
-          │                  │
-          │          ┌───────▼────────┐
-          │          │query-scheduler │
-          │          └───────┬────────┘
-          │                  │
-          │     ┌────────────┴────────────┐
-          │     │                         │
-          │     ▼                         ▼
-          │ ┌──────────┐          ┌──────────────┐
-          │ │ loki-read│          │ loki-backend │
-          │ │(querier) │          │(compactor /  │
-          │ └────┬─────┘          │ index/store) │
-          │      │                └──────┬───────┘
-          │      └──────────┬────────────┘
-          │                 │
-          │                 ▼
-          │          ┌──────────┐
-          │          │  MinIO   │  S3 호환 오브젝트 스토리지
-          │          └──────────┘
-          │                 ▲
-          │          ┌──────┴─────┐
-          │          │ loki-write │  로그 인제스터
-          │          └──────▲─────┘
-          │                 │
-          │          ┌──────┴─────┐
-          │          │   Alloy    │  로그 수집 에이전트
-          │          └──────▲─────┘
-          │                 │ Docker socket / 컨테이너 로그
-          │                 │ (label: logging=enabled)
-          ▼                 │
-  ┌───────────────┐         │
-  │   cAdvisor    │         │
-  │ Docker daemon │─────────┘
+        ┌────────────────────┼──────────────────────┐
+        │                    │                      │
+        ▼                    ▼                      ▼
+┌──────────────┐   ┌──────────────────┐   ┌─────────────────────┐
+│  Prometheus  │   │  query-frontend  │   │  pyroscope-         │
+│  (metrics)   │   │  (Loki, port     │   │  query-frontend     │
+└──────┬───────┘   │   3100)          │   │  (Flame graphs)     │
+       │           └────────┬─────────┘   └──────────┬──────────┘
+       │                    │                        │
+       │            ┌───────▼────────┐      ┌────────▼────────┐
+       │            │query-scheduler │      │pyroscope-querier│
+       │            └───────┬────────┘      └────────┬────────┘
+       │                    │                    │         │
+       │         ┌──────────┴──────────┐         ▼         ▼
+       │         ▼                     ▼    ┌─────────┐ ┌──────────────┐
+       │    ┌──────────┐        ┌──────────┐│ingester │ │store-gateway │
+       │    │loki-read │        │loki-     ││(최근)   │ │(과거 블록)   │
+       │    └────┬─────┘        │backend   │└────┬────┘ └──────┬───────┘
+       │         └──────┬───────┘          │     │             │
+       │                ▼                  │     └──────┬───────┘
+       │          ┌──────────┐             │            ▼
+       │          │  MinIO   │◀────────────┘       ┌──────────┐
+       │          │  (Loki)  │                     │  MinIO   │
+       │          └──────────┘                     │(Pyroscope│
+       │                 ▲                         └──────────┘
+       │          ┌──────┴─────┐
+       │          │ loki-write │
+       │          └──────▲─────┘
+       │                 │
+       │          ┌──────┴─────┐
+       │          │   Alloy    │  stdout JSON 수집 (logging=enabled)
+       │          └──────▲─────┘
+       ▼                 │ Docker socket
+  ┌───────────────┐      │
+  │   cAdvisor    │──────┘
+  │ Docker daemon │
   │   Traefik     │  (메트릭 스크래핑 대상)
   └───────────────┘
 ```
@@ -70,7 +73,9 @@ Docker Compose 기반의 통합 관측성(Observability) 스택입니다. 메트
 | `visualize/` | 시각화 진입점 | Traefik, Grafana |
 | `metrics/` | 메트릭 수집 및 저장 | Prometheus, cAdvisor |
 | `logging/` | 로그 수집 및 저장 | Loki (분산 구성), Alloy, MinIO |
-| `tracing/` | 분산 트레이싱 | (구성 예정) |
+| `tracing/` | 분산 트레이싱 | Jaeger, OTel Collector, ScyllaDB |
+| `profiling/` | 지속적 프로파일링 | Pyroscope (분산 구성), MinIO — UI: `http://<host>:4041` |
+| `server/` | 관측성 예제 애플리케이션 | Django + Gunicorn (Traces·Metrics·Logs·Flames) |
 | `grafana/` | Grafana 대시보드 JSON 정의 | container_usage 대시보드 |
 | `scripts/` | 유틸리티 스크립트 | 네트워크 설정, daemon 설정 등 |
 
@@ -81,10 +86,11 @@ Docker Compose 기반의 통합 관측성(Observability) 스택입니다. 메트
 | 네트워크 | 연결 서비스 |
 |---|---|
 | `logging-network` | Loki 구성 요소, Alloy, Prometheus (Loki 메트릭 스크래핑) |
-| `metrics-network` | Prometheus, cAdvisor, Grafana |
-| `tracing-network` | Traefik (OTEL), 트레이싱 서비스 |
-| `traefik-network` | Traefik 라우팅 대상 서비스 |
-| `grafana-network` | Grafana ↔ Prometheus, Loki 데이터소스 |
+| `metrics-network` | Prometheus, cAdvisor, Grafana, Django (메트릭 스크래핑) |
+| `tracing-network` | Traefik (OTEL), Jaeger, OTel Collector, Django (트레이스 전송) |
+| `profiling-network` | Pyroscope 구성 요소, Django (프로파일 전송) |
+| `traefik-network` | Traefik 라우팅 대상 서비스 (Django 포함) |
+| `grafana-network` | Grafana ↔ Prometheus, Loki, Jaeger, Pyroscope 데이터소스 |
 
 ## 시작하기
 
@@ -108,7 +114,9 @@ make daemon
 make http       # Traefik + Grafana (HTTP)
 make metrics    # Prometheus + cAdvisor
 make logging    # Loki + Alloy + MinIO
-make tracing    # 트레이싱 스택
+make tracing    # Jaeger + OTel Collector + ScyllaDB
+make profiling  # Pyroscope + MinIO
+make server     # Django 예제 애플리케이션
 ```
 
 HTTPS를 사용하려면 `visualize/https.yml`의 `{YOUR_EMAIL}@gmail.com`을 실제 이메일로 수정한 뒤 `make https`를 실행합니다.

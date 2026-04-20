@@ -71,7 +71,12 @@ Query-frontend로부터 쿼리를 받아 Ingester(최근 데이터)와 Store-gat
 
 Grafana로부터 쿼리를 받아 Querier로 전달합니다. `grafana-network`에 연결되어 Grafana가 내부적으로 접근합니다.
 
+| 포트 | 역할 |
+|---|---|
+| `4041` | Pyroscope UI 및 API (호스트 접근용) |
+
 - **Grafana 데이터소스 URL**: `http://pyroscope-query-frontend:4040`
+- **Pyroscope UI**: `http://<host>:4041`
 - 리소스 제한: CPU 0.3코어, 메모리 256MB
 
 ---
@@ -165,6 +170,14 @@ pyroscope-query-frontend
 | Ring KV 스토어 | Memberlist |
 | 복제 계수 | 1 |
 | 스토리지 백엔드 | MinIO S3 (`insecure: true`) |
+| Querier → Query-frontend | `frontend_worker.frontend_address: pyroscope-query-frontend:9095` |
+| Store-gateway 링 | Memberlist (복제 계수 1) |
+
+### 쿼리 디스패치 구조
+
+Query-scheduler 없이 운영하므로 Querier가 `frontend_worker.frontend_address`를 통해 Query-frontend의 gRPC 포트(9095)에 직접 연결하여 쿼리를 풀(pull)합니다. 이 설정이 없으면 Query-frontend가 쿼리를 전달할 Querier를 찾지 못해 30초 타임아웃이 발생합니다.
+
+Store-gateway 링은 Querier가 Memberlist를 통해 Store-gateway를 자동 탐색하는 데 필요합니다. 설정이 없으면 Ingester 플러시 이후의 과거 블록 쿼리가 실패합니다.
 
 ## 애플리케이션 연동
 

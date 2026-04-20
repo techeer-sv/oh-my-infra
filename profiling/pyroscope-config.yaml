@@ -25,6 +25,11 @@ ingester:
         store: memberlist
       replication_factor: 1
 
-querier:
-  worker:
-    frontend_address: pyroscope-query-frontend:9095
+store_gateway:
+  sharding_ring:
+    kvstore:
+      store: memberlist
+    replication_factor: 1
+
+frontend_worker:
+  frontend_address: pyroscope-query-frontend:9095

@@ -145,7 +145,7 @@ Grafana로부터 쿼리를 받아 Query-scheduler로 전달합니다. `profiling
            ▼                        ▼
 ┌──────────────────┐    ┌───────────────────────┐
 │pyroscope-ingester│    │pyroscope-store-gateway│
-│  (최근 데이터)    │    │   (과거 블록, MinIO)   │
+│  (최근 데이터)      │    │   (과거 블록, MinIO)    │
 └──────────────────┘    └───────────────────────┘
 ```
 

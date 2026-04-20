@@ -88,9 +88,9 @@ Docker Compose 기반의 통합 관측성(Observability) 스택입니다. 메트
 | `logging-network` | Loki 구성 요소, Alloy, Prometheus (Loki 메트릭 스크래핑) |
 | `metrics-network` | Prometheus, cAdvisor, Grafana, Django (메트릭 스크래핑) |
 | `tracing-network` | Traefik (OTEL), Jaeger, OTel Collector, Django (트레이스 전송) |
-| `profiling-network` | Pyroscope 구성 요소, Django (프로파일 전송) |
+| `profiling-network` | Pyroscope 구성 요소, Django (프로파일 전송), Grafana (Pyroscope 데이터소스) |
 | `traefik-network` | Traefik 라우팅 대상 서비스 (Django 포함) |
-| `grafana-network` | Grafana ↔ Prometheus, Loki, Jaeger, Pyroscope 데이터소스 |
+| `grafana-network` | Grafana ↔ Prometheus, Loki, Jaeger 데이터소스 |
 
 ## 시작하기
 

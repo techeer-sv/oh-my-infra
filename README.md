@@ -10,7 +10,7 @@ Docker Compose 기반의 통합 관측성(Observability) 스택입니다. 메트
   Django App (server/)
   ┌─────────────────────────────────────────────────────┐
   │  gunicorn + OpenTelemetry + pyroscope-io            │
-  │  - Traces  → otel-collector:4317 (OTLP gRPC)       │
+  │  - Traces  → otel-collector:4317 (OTLP gRPC)        │
   │  - Metrics → /metrics (Prometheus scrape)           │
   │  - Logs    → stdout JSON → Alloy → Loki             │
   │  - Flames  → pyroscope-distributor:4040             │
@@ -39,18 +39,18 @@ Docker Compose 기반의 통합 관측성(Observability) 스택입니다. 메트
        │            │query-scheduler │      │pyroscope-querier│
        │            └───────┬────────┘      └────────┬────────┘
        │                    │                    │         │
-       │         ┌──────────┴──────────┐         ▼         ▼
-       │         ▼                     ▼    ┌─────────┐ ┌──────────────┐
-       │    ┌──────────┐        ┌──────────┐│ingester │ │store-gateway │
-       │    │loki-read │        │loki-     ││(최근)   │ │(과거 블록)   │
-       │    └────┬─────┘        │backend   │└────┬────┘ └──────┬───────┘
-       │         └──────┬───────┘          │     │             │
-       │                ▼                  │     └──────┬───────┘
-       │          ┌──────────┐             │            ▼
-       │          │  MinIO   │◀────────────┘       ┌──────────┐
-       │          │  (Loki)  │                     │  MinIO   │
-       │          └──────────┘                     │(Pyroscope│
-       │                 ▲                         └──────────┘
+       │         ┌──────────┴───────┐            ▼         ▼
+       │         ▼                  ▼       ┌─────────┐ ┌──────────────┐
+       │    ┌──────────┐      ┌────────────┐│ingester │ │store-gateway │
+       │    │loki-read │      │loki-backend││(최근)    │ │(과거 블록)     │
+       │    └────┬─────┘      └─────┬──────┘└────┬────┘ └──────┬───────┘
+       │         └──────┬───────────┘            │             │
+       │                ▼                        └──────┬──────┘
+       │          ┌──────────┐                          ▼
+       │          │  MinIO   │                     ┌───────────┐
+       │          │  (Loki)  │                     │  MinIO    │
+       │          └──────────┘                     │(Pyroscope)│
+       │                 ▲                         └───────────┘
        │          ┌──────┴─────┐
        │          │ loki-write │
        │          └──────▲─────┘

@@ -37,11 +37,17 @@ services:
   pyroscope-ingester:
     image: grafana/pyroscope:1.21.0
     container_name: pyroscope-ingester
-    command: -target=ingester -config.file=/etc/pyroscope/config.yaml
+    command:
+      - -config.file=/etc/pyroscope/config.yaml
+      - -target=ingester
+      - -memberlist.cluster-label=profiling-system
+      - -memberlist.join=pyroscope-memberlist:7946
     volumes:
       - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
     networks:
-      - profiling-network
+      profiling-network:
+        aliases:
+          - pyroscope-memberlist
     depends_on:
       pyroscope-minio-init:
         condition: service_completed_successfully
@@ -52,13 +58,19 @@ services:
   pyroscope-distributor:
     image: grafana/pyroscope:1.21.0
     container_name: pyroscope-distributor
-    command: -target=distributor -config.file=/etc/pyroscope/config.yaml
+    command:
+      - -config.file=/etc/pyroscope/config.yaml
+      - -target=distributor
+      - -memberlist.cluster-label=profiling-system
+      - -memberlist.join=pyroscope-memberlist:7946
     volumes:
       - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
     ports:
       - "4040:4040"
     networks:
-      - profiling-network
+      profiling-network:
+        aliases:
+          - pyroscope-memberlist
     depends_on:
       - pyroscope-ingester
     restart: unless-stopped
@@ -68,11 +80,18 @@ services:
   pyroscope-store-gateway:
     image: grafana/pyroscope:1.21.0
     container_name: pyroscope-store-gateway
-    command: -target=store-gateway -config.file=/etc/pyroscope/config.yaml
+    command:
+      - -config.file=/etc/pyroscope/config.yaml
+      - -target=store-gateway
+      - -memberlist.cluster-label=profiling-system
+      - -memberlist.join=pyroscope-memberlist:7946
+      - -store-gateway.sharding-ring.replication-factor=1
     volumes:
       - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
     networks:
-      - profiling-network
+      profiling-network:
+        aliases:
+          - pyroscope-memberlist
     depends_on:
       pyroscope-minio-init:
         condition: service_completed_successfully
@@ -83,11 +102,17 @@ services:
   pyroscope-compactor:
     image: grafana/pyroscope:1.21.0
     container_name: pyroscope-compactor
-    command: -target=compactor -config.file=/etc/pyroscope/config.yaml
+    command:
+      - -config.file=/etc/pyroscope/config.yaml
+      - -target=compactor
+      - -memberlist.cluster-label=profiling-system
+      - -memberlist.join=pyroscope-memberlist:7946
     volumes:
       - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
     networks:
-      - profiling-network
+      profiling-network:
+        aliases:
+          - pyroscope-memberlist
     depends_on:
       pyroscope-minio-init:
         condition: service_completed_successfully
@@ -95,17 +120,45 @@ services:
     cpus: "0.3"
     mem_limit: "256m"
 
-  pyroscope-querier:
+  pyroscope-query-scheduler:
     image: grafana/pyroscope:1.21.0
-    container_name: pyroscope-querier
-    command: -target=querier -config.file=/etc/pyroscope/config.yaml
+    container_name: pyroscope-query-scheduler
+    command:
+      - -config.file=/etc/pyroscope/config.yaml
+      - -target=query-scheduler
+      - -memberlist.cluster-label=profiling-system
+      - -memberlist.join=pyroscope-memberlist:7946
     volumes:
       - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
     networks:
-      - profiling-network
+      profiling-network:
+        aliases:
+          - pyroscope-memberlist
+    depends_on:
+      - pyroscope-ingester
+    restart: unless-stopped
+    cpus: "0.3"
+    mem_limit: "256m"
+
+  pyroscope-querier:
+    image: grafana/pyroscope:1.21.0
+    container_name: pyroscope-querier
+    command:
+      - -config.file=/etc/pyroscope/config.yaml
+      - -target=querier
+      - -memberlist.cluster-label=profiling-system
+      - -memberlist.join=pyroscope-memberlist:7946
+      - -store-gateway.sharding-ring.replication-factor=1
+    volumes:
+      - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
+    networks:
+      profiling-network:
+        aliases:
+          - pyroscope-memberlist
     depends_on:
       - pyroscope-ingester
       - pyroscope-store-gateway
+      - pyroscope-query-scheduler
     restart: unless-stopped
     cpus: "0.3"
     mem_limit: "256m"
@@ -113,15 +166,22 @@ services:
   pyroscope-query-frontend:
     image: grafana/pyroscope:1.21.0
     container_name: pyroscope-query-frontend
-    command: -target=query-frontend -config.file=/etc/pyroscope/config.yaml
+    command:
+      - -config.file=/etc/pyroscope/config.yaml
+      - -target=query-frontend
+      - -memberlist.cluster-label=profiling-system
+      - -memberlist.join=pyroscope-memberlist:7946
     volumes:
       - ./pyroscope-config.yaml:/etc/pyroscope/config.yaml
     networks:
-      - profiling-network
+      profiling-network:
+        aliases:
+          - pyroscope-memberlist
+      grafana-network: {}
     ports:
       - "4041:4040"
     depends_on:
-      - pyroscope-querier
+      - pyroscope-query-scheduler
     restart: unless-stopped
     cpus: "0.3"
     mem_limit: "256m"
@@ -133,3 +193,6 @@ networks:
   profiling-network:
     external: true
     name: profiling-network
+  grafana-network:
+    external: true
+    name: grafana-network

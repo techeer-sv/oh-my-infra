@@ -223,3 +223,8 @@ make logging
 |---|---|
 | `logging-network` | Loki 컴포넌트 간 통신, Alloy → loki-write, Prometheus → query-frontend |
 | `grafana-network` | Grafana → query-frontend (로그 쿼리) |
+
+## Target 디버깅용
+```
+docker run docker.io/grafana/loki:3.6.7 -config.file=/etc/loki/local-config.yaml -list-targets
+```

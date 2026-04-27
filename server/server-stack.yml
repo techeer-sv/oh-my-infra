@@ -54,7 +54,7 @@ services:
       driver: loki
       options:
         mode: non-blocking
-        loki-url: http://loki-write:3100/loki/api/v1/push
+        loki-url: http://host.docker.internal:3100/loki/api/v1/push
         # loki-relabel-config: |
         #   - action: labelmap
         #     regex: "/(.*)"

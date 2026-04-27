@@ -228,3 +228,62 @@ make logging
 ```
 docker run docker.io/grafana/loki:3.6.7 -config.file=/etc/loki/local-config.yaml -list-targets
 ```
+```
+all
+  compactor
+  distributor
+  ingester
+  pattern-ingester
+  querier
+  query-frontend
+  query-scheduler
+  ruler
+  ui
+backend
+  bloom-builder
+  bloom-gateway
+  bloom-gateway-client
+  bloom-planner
+  compactor
+  index-gateway
+  query-scheduler
+  ruler
+bloom-builder
+  bloom-gateway-client
+bloom-gateway
+  bloom-gateway-client
+bloom-gateway-client
+bloom-planner
+  bloom-gateway-client
+compactor
+dataobj-consumer
+  scratch-store
+dataobj-explorer
+dataobj-index-builder
+  scratch-store
+distributor
+index-gateway
+  bloom-gateway-client
+ingest-limits
+ingest-limits-frontend
+ingester
+overrides-exporter
+pattern-ingester
+querier
+  query-scheduler
+query-frontend
+  query-scheduler
+query-scheduler
+read
+  querier
+  query-frontend
+  query-scheduler
+ruler
+scratch-store
+table-manager
+ui
+write
+  distributor
+  ingester
+  pattern-ingester
+```

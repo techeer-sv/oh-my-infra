@@ -60,6 +60,9 @@ services:
             regex: "/(.*)"
             replacement: "container_name"
             source_labels: ["__meta_docker_container_name"]
+        loki-external-labels: 
+          - container_name={{.Name}}
+          - driver=docker-loki
 
 networks:
   tracing-network:

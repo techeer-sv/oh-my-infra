@@ -19,7 +19,6 @@ services:
     cpus: "0.5"
     mem_limit: "512m"
     labels:
-      logging: enabled
       traefik.enable: "true"
       traefik.docker.network: "traefik-network"
       traefik.http.services.django-app.loadbalancer.server.port: "8000"

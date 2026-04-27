@@ -19,20 +19,12 @@ services:
     cpus: "0.5"
     mem_limit: "512m"
     labels:
+      logging: enabled
       traefik.enable: "true"
       traefik.docker.network: "traefik-network"
       traefik.http.services.django-app.loadbalancer.server.port: "8000"
       traefik.http.routers.django-app.rule: "PathPrefix(`/django`)"
       traefik.http.routers.django-app.entrypoints: "web"
-    logging:
-      driver: loki
-      options:
-        loki-url: http://loki-write:3100/loki/api/v1/push
-        loki-relabel-config: |
-          - action: labelmap
-            regex: "/(.*)"
-            replacement: "container_name"
-            source_labels: ["__meta_docker_container_name"]
 
   django-app-loki:
     build: .
@@ -59,6 +51,15 @@ services:
       traefik.http.services.django-app.loadbalancer.server.port: "8000"
       traefik.http.routers.django-app.rule: "PathPrefix(`/django`)"
       traefik.http.routers.django-app.entrypoints: "web"
+    logging:
+      driver: loki
+      options:
+        loki-url: http://loki-write:3100/loki/api/v1/push
+        loki-relabel-config: |
+          - action: labelmap
+            regex: "/(.*)"
+            replacement: "container_name"
+            source_labels: ["__meta_docker_container_name"]
 
 networks:
   tracing-network:

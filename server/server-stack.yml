@@ -14,6 +14,42 @@ services:
       - metrics-network
       - profiling-network
       - traefik-network
+      - logging-network
+    restart: unless-stopped
+    cpus: "0.5"
+    mem_limit: "512m"
+    labels:
+      logging: enabled
+      traefik.enable: "true"
+      traefik.docker.network: "traefik-network"
+      traefik.http.services.django-app.loadbalancer.server.port: "8000"
+      traefik.http.routers.django-app.rule: "PathPrefix(`/django`)"
+      traefik.http.routers.django-app.entrypoints: "web"
+    logging:
+      driver: loki
+      options:
+        loki-url: http://loki-write:3100/loki/api/v1/push
+        loki-relabel-config: |
+          - action: labelmap
+            regex: "/(.*)"
+            replacement: "container_name"
+            source_labels: ["__meta_docker_container_name"]
+
+  django-app-loki:
+    build: .
+    container_name: django-app-loki
+    ports:
+      - "8001:8000"
+    environment:
+      - OTEL_SERVICE_NAME=django-observability
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - PYROSCOPE_SERVER_ADDRESS=http://pyroscope-distributor:4040
+      - DJANGO_LOG_LEVEL=DEBUG
+    networks:
+      - tracing-network
+      - metrics-network
+      - profiling-network
+      - traefik-network
     restart: unless-stopped
     cpus: "0.5"
     mem_limit: "512m"
@@ -38,3 +74,6 @@ networks:
   traefik-network:
     external: true
     name: traefik-network
+  logging-network:
+    external: true
+    name: logging-network

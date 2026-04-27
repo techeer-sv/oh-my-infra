@@ -52,10 +52,10 @@ services:
     cpus: "0.5"
     mem_limit: "300m"
 
-  loki-read:
+  loki-querier:
     image: grafana/loki:3.6.7
-    container_name: loki-read
-    command: -config.file=/etc/loki/loki.yaml -target=read
+    container_name: loki-querier
+    command: -config.file=/etc/loki/loki.yaml -target=querier
     networks:
       - logging-network
     volumes:

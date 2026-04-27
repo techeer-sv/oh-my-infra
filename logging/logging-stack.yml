@@ -42,6 +42,8 @@ services:
     command: -config.file=/etc/loki/loki.yaml -target=write
     networks:
       - logging-network
+    ports:
+      - "3102:3100"
     volumes:
       - ./loki-config.yaml:/etc/loki/loki.yaml
     depends_on:

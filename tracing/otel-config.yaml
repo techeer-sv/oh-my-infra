@@ -28,11 +28,6 @@ exporters:
     endpoint: "0.0.0.0:9464"
   otlphttp:
     endpoint: http://loki-write:3100/otlp
-    labels:
-      attributes:
-        service.name: "service_name"
-        service.namespace: "namespace"
-        severity_text: "level"
 
 service:
   pipelines:

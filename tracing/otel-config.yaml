@@ -43,3 +43,6 @@ service:
       receivers: [otlp]
       processors: [attributes/drop_high_card, batch]
       exporters: [otlphttp]
+  telemetry:
+    logs:
+      level: "DEBUG"

@@ -26,3 +26,7 @@ scrape_configs:
     static_configs:
       - targets: ['django-app:8000']
     metrics_path: '/django/metrics'
+
+  - job_name: "otel"
+    static_configs:
+      - targets: ["otel-collector:9464"]

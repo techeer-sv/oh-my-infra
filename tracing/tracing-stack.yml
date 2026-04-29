@@ -79,6 +79,7 @@ services:
       - "4318:4318"
     networks:
       - tracing-network
+      - logging-network
     depends_on:
       - jaeger-collector
     restart: unless-stopped
@@ -95,3 +96,6 @@ networks:
   grafana-network:
     external: true
     name: grafana-network
+  logging-network:
+    external: true
+    name: logging-network

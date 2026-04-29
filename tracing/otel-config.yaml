@@ -8,12 +8,31 @@ receivers:
 
 processors:
   batch:
+  attributes/drop_high_card:
+    actions:
+      - key: session.id
+        action: delete
+      - key: conversation.id
+        action: delete
+      - key: tool.call.id
+        action: delete
+      - key: prompt.id
+        action: delete
 
 exporters:
   otlp:
     endpoint: jaeger-collector:4317
     tls:
       insecure: true
+  prometheus:
+    endpoint: "0.0.0.0:9464"
+  loki:
+    endpoint: http://loki-write:3100/loki/api/v1/push
+    labels:
+      attributes:
+        service.name: "service_name"
+        service.namespace: "namespace"
+        severity_text: "level"
 
 service:
   pipelines:
@@ -21,3 +40,11 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [otlp]
+    metrics:
+      receivers: [otlp]
+      processors: [attributes/drop_high_card, batch]
+      exporters: [prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [attributes/drop_high_card, batch]
+      exporters: [loki]

@@ -7,7 +7,7 @@ add_if_missing() {
   grep -qxF "$line" "$ZSHRC" || echo "$line" >> "$ZSHRC"
 }
 
-echo "Updating $ZSHRC..."
+echo "$ZSHRC 업데이트중..."
 
 add_if_missing 'export CLAUDE_CODE_ENABLE_TELEMETRY=1'
 
@@ -17,9 +17,12 @@ add_if_missing 'export OTEL_LOGS_EXPORTER=otlp'
 add_if_missing 'export OTEL_EXPORTER_OTLP_PROTOCOL=grpc'
 add_if_missing 'export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317'
 
-echo "Done. Reloading..."
+add_if_missing 'export OTEL_LOG_USER_PROMPTS=1'
+add_if_missing 'export OTEL_LOG_TOOL_DETAILS=1'
+
+echo "완료: 텔레메트리 환경 변수가 $ZSHRC에 추가되었습니다."
 
 # Reload zshrc
 source "$ZSHRC"
 
-echo "Telemetry env vars set."
+echo "완료: $ZSHRC가 다시 로드되었습니다."

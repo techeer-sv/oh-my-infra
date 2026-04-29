@@ -80,6 +80,7 @@ services:
     networks:
       - tracing-network
       - logging-network
+      - metrics-network
     depends_on:
       - jaeger-collector
     restart: unless-stopped
@@ -99,3 +100,6 @@ networks:
   logging-network:
     external: true
     name: logging-network
+  metrics-network:
+    external: true
+    name: metrics-network

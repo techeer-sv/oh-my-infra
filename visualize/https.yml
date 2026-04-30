@@ -56,10 +56,15 @@ services:
       - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
+      - ../grafana/provisioning:/etc/grafana/provisioning
+      - ../grafana:/etc/grafana/dashboards
     restart: unless-stopped
     networks:
+      - logging-network
       - traefik-network
       - grafana-network
+      - tracing-network
+      - profiling-network
     cpus: "0.5"
     mem_limit: "1G"
 
@@ -79,3 +84,9 @@ networks:
   grafana-network:
     external: true
     name: grafana-network
+  logging-network:
+    external: true
+    name: logging-network
+  profiling-network:
+    external: true
+    name: profiling-network

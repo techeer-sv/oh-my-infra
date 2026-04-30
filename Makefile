@@ -14,6 +14,7 @@ help:
 	@echo "  make http           - HTTP 컴포즈 실행"
 	@echo "  make https          - HTTPS 컴포즈 실행"
 	@echo "  make server         - 서버 컴포즈 실행"
+	@echo "  make claude         - Claude Code 텔레메트리 환경변수 설정"
 
 .PHONY: networks
 networks:
@@ -75,3 +76,8 @@ https:
 server:
 	@echo "서버 컴포즈 실행 중..."
 	docker compose -f ./server/server-stack.yml up -d
+
+.PHONY: claude
+claude:
+	@echo "Claude Code 텔레메트리 환경변수 설정 중..."
+	bash ./scripts/claude.sh

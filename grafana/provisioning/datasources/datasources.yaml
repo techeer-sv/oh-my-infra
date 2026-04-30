@@ -16,6 +16,13 @@ datasources:
     access: proxy
     editable: true
 
+  - name: loki-ui
+    type: loki
+    uid: loki-ui
+    url: http://loki-ui:3100
+    access: proxy
+    editable: true
+
   - name: jaeger
     type: jaeger
     uid: jaeger

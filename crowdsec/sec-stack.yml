@@ -1,0 +1,139 @@
+services:
+  secured-traefik:
+    image: traefik:v3.6.9
+    container_name: secured-traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=DEBUG"
+      - "--accesslog=true"
+      - "--accesslog.bufferingsize=100"
+      - "--accesslog.format=json"
+      - "--accesslog.filepath=/traefik/logs/access.log"
+      - "--accesslog.fields.defaultmode=keep"
+      - "--accesslog.fields.headers.defaultmode=keep"
+      - "--accesslog.fields.headers.names.X-Forwarded-For=keep"
+      - "--api.dashboard=true"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000"
+      - "--metrics.prometheus.addEntryPointsLabels=true"
+      - "--metrics.prometheus.addServicesLabels=true"
+      - "--entryPoints.metrics.address=:8091"
+      - "--metrics.prometheus.entryPoint=metrics"
+      # - "--tracing=true"
+      # - "--tracing.otlp=true"
+      # - "--tracing.otlp.grpc.insecure=true"
+      # - "--tracing.otlp.grpc.endpoint=otel-collector:4317"
+      # - "--tracing.serviceName=traefik"
+      # - "--tracing.sampleRate=1.0"
+      - "--experimental.plugins.crowdsec-bouncer-traefik-plugin.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
+      - "--experimental.plugins.crowdsec-bouncer-traefik-plugin.version=v1.6.0"
+    ports:
+      - "80:80"
+      - "8090:8080"
+      - "8091:8091"
+    networks:
+      - secured-traefik-network
+      - crowdsec-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-logs:/traefik/logs
+    restart: unless-stopped
+    cpus: "0.5"
+    mem_limit: "500m"
+    labels:
+      logging: enabled
+
+  crowdsec:
+    image: crowdsecurity/crowdsec:v1.7.7
+    container_name: crowdsec
+    environment:
+      COLLECTIONS: |
+        crowdsecurity/traefik
+        crowdsecurity/http-cve
+        crowdsecurity/appsec-virtual-patching
+        crowdsecurity/appsec-generic-rules
+      BOUNCER_KEY_TRAEFIK: "Z4MqdVoA2QGWoWbSr8cj/Ms74bP/aD4H060LIhawEWA"
+      CROWDSEC_LAPI_URL: http://127.0.0.1:8080
+      API_SERVER_URL: http://127.0.0.1:8080
+    volumes:
+      - crowdsec-db:/var/lib/crowdsec/data
+      - crowdsec-config:/etc/crowdsec
+      - ./acquis.yaml:/etc/crowdsec/acquis.d/traefik.yaml:ro
+      - ./appsec.yaml:/etc/crowdsec/acquis.d/appsec.yaml:ro
+      - traefik-logs:/var/log/traefik:ro
+    networks:
+      - crowdsec-network
+    ports:
+      - "8080:8080"
+      - "7422:7422"
+    restart: unless-stopped
+    cpus: "0.3"
+    mem_limit: "256m"
+    labels:
+      logging: enabled
+
+  secured-grafana:
+    image: grafana/grafana:12.4
+    container_name: secured-grafana
+    volumes:
+      - grafana-data-2:/var/lib/grafana
+      - ../grafana/provisioning:/etc/grafana/provisioning
+      - ../grafana:/etc/grafana/dashboards
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - logging-network
+      - secured-traefik-network
+    cpus: "0.5"
+    mem_limit: "1G"
+    labels:
+      logging: enabled
+      traefik.enable: "true"
+      traefik.docker.network: "secured-traefik-network"
+      traefik.http.services.grafana.loadbalancer.server.port: "3000"
+      traefik.http.routers.grafana.rule: "PathPrefix(`/`)"
+      traefik.http.routers.grafana.entrypoints: "web"
+      traefik.http.routers.grafana.middlewares: "crowdsec@docker"
+      traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.enabled: true
+      traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapikey: "Z4MqdVoA2QGWoWbSr8cj/Ms74bP/aD4H060LIhawEWA"
+      traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapischeme: "http"
+      traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapihost: "crowdsec:8080"
+      traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdsecappsecenabled: "true"
+      traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdsecappsechost: "crowdsec:7422"
+
+  crowdsec-web-ui:
+    image: ghcr.io/theduffman85/crowdsec-web-ui:2026.5.3
+    container_name: crowdsec_web_ui
+    ports:
+      - "3001:3000"
+    environment:
+      - CROWDSEC_URL=http://crowdsec:8080
+      - CROWDSEC_USER=crowdsec-web-ui
+      - CROWDSEC_PASSWORD=testing
+    volumes:
+      - ui-data:/app/data
+    restart: unless-stopped
+    networks:
+      - crowdsec-network
+
+volumes:
+  ui-data:
+  grafana-data-2:
+  traefik-logs:
+  crowdsec-db:
+  crowdsec-config:
+
+networks:
+  secured-traefik-network:
+    external: true
+    name: secured-traefik-network
+  crowdsec-network:
+    external: true
+    name: crowdsec-network
+  logging-network:
+    external: true
+    name: logging-network

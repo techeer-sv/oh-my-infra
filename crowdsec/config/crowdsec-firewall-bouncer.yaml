@@ -1,7 +1,7 @@
 mode: nftables
 
-# api_url: http://127.0.0.1:8080/
-# api_key: firewall-secret-key
+api_url: ${API_URL}
+api_key: ${API_KEY}
 
 disable_ipv6: false
 blacklists_ipv4: crowdsec-blacklists

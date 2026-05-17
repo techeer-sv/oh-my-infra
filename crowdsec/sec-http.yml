@@ -160,7 +160,7 @@ services:
       - ./alloy-config.alloy:/etc/alloy/config.alloy
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - traefik-logs:/traefik/logs/access.log:ro
+      - traefik-logs:/traefik/logs:ro
     restart: unless-stopped
     cpus: "0.5"
     mem_limit: "300m"

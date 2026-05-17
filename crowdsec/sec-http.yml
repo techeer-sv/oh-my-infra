@@ -68,6 +68,9 @@ services:
       - crowdsec-db:/var/lib/crowdsec/data
       - crowdsec-config:/etc/crowdsec
       - ./config/acquis.d:/etc/crowdsec/acquis.d
+      - ./config/appsec.yaml:/etc/crowdsec/appsec.yaml:ro
+      - ./config/sshd.yaml:/etc/crowdsec/sshd.yaml:ro
+      - ./config/acquis.yaml:/etc/crowdsec/acquis.yaml:ro
       - traefik-logs:/var/log/traefik:ro
       - /var/log/journal:/var/log/journal:ro
       - /run/log/journal:/run/log/journal:ro

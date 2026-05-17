@@ -14,6 +14,7 @@ help:
 	@echo "  make profilingv2    - v2 프로파일링 컴포즈 실행"
 	@echo "  make http           - HTTP 컴포즈 실행"
 	@echo "  make https          - HTTPS 컴포즈 실행"
+	@echo "  make http-crowdsec  - CrowdSec HTTP 컴포즈 실행"
 	@echo "  make server         - 서버 컴포즈 실행"
 	@echo "  make claude         - Claude Code 텔레메트리 환경변수 설정"
 
@@ -87,3 +88,8 @@ server:
 claude:
 	@echo "Claude Code 텔레메트리 환경변수 설정 중..."
 	bash ./scripts/claude.sh
+
+.PHONY: http-crowdsec
+http-crowdsec:
+	@echo "CrowdSec HTTP 컴포즈 실행 중..."
+	docker compose -f ./crowdsec/sec-http.yml up -d

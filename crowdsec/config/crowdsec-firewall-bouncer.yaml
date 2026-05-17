@@ -1,0 +1,14 @@
+mode: nftables
+
+# api_url: http://127.0.0.1:8080/
+# api_key: firewall-secret-key
+
+disable_ipv6: false
+blacklists_ipv4: crowdsec-blacklists
+blacklists_ipv6: crowdsec6-blacklists
+update_frequency: 10s
+
+deny_action: drop
+
+log_mode: stdout
+log_level: info

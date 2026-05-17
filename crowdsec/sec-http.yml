@@ -149,6 +149,19 @@ services:
     restart: unless-stopped
     networks:
       - crowdsec-network
+  
+    alloy:
+    image: grafana/alloy:v1.13.2
+    container_name: alloy
+    command: run /etc/alloy/config.alloy
+    volumes:
+      - ./alloy-config.alloy:/etc/alloy/config.alloy
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - traefik-logs:/traefik/logs/access.log:ro
+    restart: unless-stopped
+    cpus: "0.5"
+    mem_limit: "300m"
 
 volumes:
   ui-data:

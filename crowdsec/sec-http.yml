@@ -80,7 +80,7 @@ services:
       logging: enabled
   
   crowdsec-firewall-bouncer:
-    image: ghcr.io/shgew/cs-firewall-bouncer-docker:latest
+    image: ghcr.io/shgew/cs-firewall-bouncer-docker:v0.0.34
     container_name: crowdsec-firewall-bouncer
     network_mode: host
     cap_add:

@@ -49,7 +49,7 @@ services:
       logging: enabled
 
   crowdsec:
-    image: crowdsecurity/crowdsec:v1.7.7
+    image: crowdsecurity/crowdsec:v1.7.8-debian
     container_name: crowdsec
     environment:
       COLLECTIONS: |
@@ -58,6 +58,8 @@ services:
         crowdsecurity/sshd
         crowdsecurity/appsec-virtual-patching
         crowdsecurity/appsec-generic-rules
+        crowdsecurity/linux
+        crowdsecurity/iptables
       BOUNCER_KEY_TRAEFIK: "traefik-secret-key"  # 꼭 바꾸삼
       BOUNCER_KEY_FIREWALL: "firewall-secret-key"  # 꼭 바꾸삼
       CROWDSEC_LAPI_URL: http://127.0.0.1:8080
@@ -65,13 +67,13 @@ services:
     volumes:
       - crowdsec-db:/var/lib/crowdsec/data
       - crowdsec-config:/etc/crowdsec
-      - ./config/acquis.yaml:/etc/crowdsec/acquis.d/traefik.yaml:ro
-      - ./config/appsec.yaml:/etc/crowdsec/acquis.d/appsec.yaml:ro
-      - ./config/sshd.yaml:/etc/crowdsec/acquis.d/sshd.yaml:ro
+      - ./config/acquis.d:/etc/crowdsec/acquis.d
       - traefik-logs:/var/log/traefik:ro
       - /var/log/journal:/var/log/journal:ro
       - /run/log/journal:/run/log/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
+    cap_add:
+      - SYS_ADMIN
     networks:
       - crowdsec-network
     ports:

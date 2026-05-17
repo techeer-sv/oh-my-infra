@@ -27,7 +27,7 @@ loki.source.docker "containers" {
 
 loki.source.file "access_log" {
   targets = [
-    {__path__ = "/traefik/logs/access.log", job = "traefik_access"}
+    {__path__ = "/traefik/logs/access.log", "job" = "traefik_access"},
   ]
 
   forward_to = [loki.write.default.receiver]

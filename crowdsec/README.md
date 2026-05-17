@@ -106,6 +106,8 @@ docker exec crowdsec cscli alerts list
 
 # 5. AppSec 상태 확인
 docker exec crowdsec cscli appsec-rules list
+
+docker exec crowdsec cscli metrics
 ```
 
 ---

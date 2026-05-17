@@ -101,6 +101,8 @@ services:
       - ./config/crowdsec-firewall-bouncer.yaml:/config/crowdsec-firewall-bouncer.yaml:ro
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
+    labels:
+      logging: enabled
 
   secured-grafana:
     image: grafana/grafana:12.4

@@ -67,7 +67,11 @@ services:
       - crowdsec-config:/etc/crowdsec
       - ./config/acquis.yaml:/etc/crowdsec/acquis.d/traefik.yaml:ro
       - ./config/appsec.yaml:/etc/crowdsec/acquis.d/appsec.yaml:ro
+      - ./config/sshd.yaml:/etc/crowdsec/acquis.d/sshd.yaml:ro
       - traefik-logs:/var/log/traefik:ro
+      - /var/log/journal:/var/log/journal:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
     networks:
       - crowdsec-network
     ports:

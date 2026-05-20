@@ -167,6 +167,7 @@ Traefik 라벨 설정:
 | `config/appsec.yaml` | AppSec 컴포넌트 설정 (`:7422`, `appsec-default` 룰셋) |
 | `config/sshd.yaml` | SSH journald 로그 수집 설정 |
 | `config/crowdsec-firewall-bouncer.yaml` | nftables 모드 방화벽 바운서 설정 |
+| `config/config.yaml` | CrowdSec 서버 설정 — CTI 공유 정책 (공유 비활성화, 커뮤니티/블록리스트 수신 활성화) |
 | `alloy-config.alloy` | Alloy 로그 수집 파이프라인 |
 | `scripts/secured.sh` | Docker 네트워크 생성 (`crowdsec-network`) |
 | `scripts/bouncer_key.sh` | 바운서 등록 (`traefik-bouncer`, `firewall-bouncer`) |

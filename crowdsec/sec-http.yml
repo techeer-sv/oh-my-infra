@@ -69,7 +69,7 @@ services:
     volumes:
       - crowdsec-db:/var/lib/crowdsec/data
       - crowdsec-config:/etc/crowdsec
-      - ./config/config.yaml:/etc/crowdsec/config.yaml:ro
+      - ./config/config.yaml:/etc/crowdsec/config.yaml.local:ro
       - ./config/appsec.yaml:/etc/crowdsec/acquis.d/appsec.yaml:ro
       - ./config/sshd.yaml:/etc/crowdsec/acquis.d/sshd.yaml:ro
       - ./config/acquis.yaml:/etc/crowdsec/acquis.d/acquis.yaml:ro

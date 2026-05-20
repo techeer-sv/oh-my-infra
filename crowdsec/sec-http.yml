@@ -43,7 +43,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-logs:/traefik/logs
     environment:
-      MY_OTEL_HOST: ${MY_OTEL_HOST:otel-collector}
+      MY_OTEL_HOST: ${MY_OTEL_HOST:-otel-collector}
     restart: unless-stopped
     cpus: "0.5"
     mem_limit: "500m"

@@ -81,6 +81,7 @@ services:
       - crowdsec-network
     ports:
       - "8080:8080"
+      - "6060:6060"
       - "7422:7422"
     restart: unless-stopped
     cpus: "0.3"

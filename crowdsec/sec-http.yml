@@ -22,12 +22,12 @@ services:
       - "--metrics.prometheus.addServicesLabels=true"
       - "--entryPoints.metrics.address=:8091"
       - "--metrics.prometheus.entryPoint=metrics"
-      # - "--tracing=true"
-      # - "--tracing.otlp=true"
-      # - "--tracing.otlp.grpc.insecure=true"
-      # - "--tracing.otlp.grpc.endpoint=otel-collector:4317"
-      # - "--tracing.serviceName=traefik"
-      # - "--tracing.sampleRate=1.0"
+      - "--tracing=true"
+      - "--tracing.otlp=true"
+      - "--tracing.otlp.grpc.insecure=true"
+      - "--tracing.otlp.grpc.endpoint=${MY_OTEL_HOST}:4317"
+      - "--tracing.serviceName=secured-traefik"
+      - "--tracing.sampleRate=1.0"
       - "--experimental.plugins.crowdsec-bouncer-traefik-plugin.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
       - "--experimental.plugins.crowdsec-bouncer-traefik-plugin.version=v1.6.0"
     ports:
@@ -42,6 +42,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-logs:/traefik/logs
+    environment:
+      MY_OTEL_HOST: ${MY_OTEL_HOST:otel-collector}
     restart: unless-stopped
     cpus: "0.5"
     mem_limit: "500m"

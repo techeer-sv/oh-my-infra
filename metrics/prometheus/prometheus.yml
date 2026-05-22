@@ -34,3 +34,7 @@ scrape_configs:
   - job_name: "crowdsec"
     static_configs:
       - targets: ["100.68.188.28:6060"]
+  
+  - job_name: "crowdsec-cadvisor"
+    static_configs:
+      - targets: ["100.68.188.28:8081"]

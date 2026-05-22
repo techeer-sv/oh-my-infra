@@ -37,16 +37,16 @@ services:
     networks:
       - traefik-network
       - crowdsec-network
-      - metrics-network
-      - tracing-network
+      # - metrics-network
+      # - tracing-network
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-logs:/traefik/logs
     environment:
       MY_OTEL_HOST: ${MY_OTEL_HOST:-otel-collector}
     restart: unless-stopped
-    cpus: "0.5"
-    mem_limit: "500m"
+    cpus: "0.2"
+    mem_limit: "128m"
     labels:
       logging: enabled
 
@@ -105,6 +105,8 @@ services:
       - ./config/crowdsec-firewall-bouncer.yaml:/config/crowdsec-firewall-bouncer.yaml:ro
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
+    cpus: "0.3"
+    mem_limit: "125m"
     labels:
       logging: enabled
 
@@ -189,8 +191,25 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - traefik-logs:/traefik/logs:ro
     restart: unless-stopped
-    cpus: "0.5"
-    mem_limit: "300m"
+    cpus: "0.2"
+    mem_limit: "256m"
+  
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.55.1
+    container_name: cadvisor
+    privileged: true
+    ports:
+      - "8081:8080"
+    networks:
+      - metrics-network
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: unless-stopped
+    cpus: "0.3"
+    mem_limit: "256m"
 
 volumes:
   ui-data:
@@ -206,18 +225,18 @@ networks:
   traefik-network:
     external: true
     name: traefik-network
-  tracing-network:
-    external: true
-    name: tracing-network
-  metrics-network:
-    external: true
-    name: metrics-network
-  grafana-network:
-    external: true
-    name: grafana-network
-  profiling-network:
-    external: true
-    name: profiling-network
-  logging-network:
-    external: true
-    name: logging-network
+  # tracing-network:
+  #   external: true
+  #   name: tracing-network
+  # metrics-network:
+  #   external: true
+  #   name: metrics-network
+  # grafana-network:
+  #   external: true
+  #   name: grafana-network
+  # profiling-network:
+  #   external: true
+  #   name: profiling-network
+  # logging-network:
+  #   external: true
+  #   name: logging-network

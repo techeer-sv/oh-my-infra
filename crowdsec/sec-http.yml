@@ -50,9 +50,9 @@ services:
     labels:
       logging: enabled
 
-  crowdsec:
+  secured-crowdsec:
     image: crowdsecurity/crowdsec:v1.7.8-debian
-    container_name: crowdsec
+    container_name: secured-crowdsec
     environment:
       COLLECTIONS: |
         crowdsecurity/traefik
@@ -89,9 +89,9 @@ services:
     labels:
       logging: enabled
   
-  crowdsec-firewall-bouncer:
+  secured-crowdsec-firewall-bouncer:
     image: ghcr.io/shgew/cs-firewall-bouncer-docker:v0.0.34
-    container_name: crowdsec-firewall-bouncer
+    container_name: secured-crowdsec-firewall-bouncer
     network_mode: host
     cap_add:
       - NET_ADMIN
@@ -143,9 +143,9 @@ services:
   #     traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdsecappsecenabled: "true"
   #     traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdsecappsechost: "crowdsec:7422"
 
-  whoami:
+  secured-whoami:
     image: traefik/whoami
-    container_name: whoami
+    container_name: secured-whoami
     restart: unless-stopped
     networks:
       - traefik-network
@@ -162,9 +162,9 @@ services:
       traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.enabled: true
       traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapikey: "traefik-secret-key" # 꼭 바꾸삼
       traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapischeme: "http"
-      traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapihost: "crowdsec:8080"
+      traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapihost: "secured-crowdsec:8080"
       traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdsecappsecenabled: "true"
-      traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdsecappsechost: "crowdsec:7422"
+      traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdsecappsechost: "secured-crowdsec:7422"
 
   # crowdsec-web-ui:
   #   image: ghcr.io/theduffman85/crowdsec-web-ui:2026.5.3
@@ -181,9 +181,9 @@ services:
   #   networks:
   #     - crowdsec-network
   
-  alloy:
+  secured-alloy:
     image: grafana/alloy:v1.13.2
-    container_name: alloy
+    container_name: securedalloy
     command: run /etc/alloy/config.alloy
     volumes:
       - ./alloy-config.alloy:/etc/alloy/config.alloy
@@ -194,9 +194,9 @@ services:
     cpus: "0.2"
     mem_limit: "256m"
   
-  cadvisor:
+  secured-cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.55.1
-    container_name: cadvisor
+    container_name: secured-cadvisor
     privileged: true
     ports:
       - "8081:8080"

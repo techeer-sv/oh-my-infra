@@ -228,9 +228,9 @@ networks:
   # tracing-network:
   #   external: true
   #   name: tracing-network
-  # metrics-network:
-  #   external: true
-  #   name: metrics-network
+  metrics-network:
+    external: true
+    name: metrics-network
   # grafana-network:
   #   external: true
   #   name: grafana-network

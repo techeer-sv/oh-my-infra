@@ -81,6 +81,8 @@ services:
     restart: unless-stopped
     networks:
       - traefik-network
+    cpus: "0.5"
+    mem_limit: "512G"
     labels:
       logging: enabled
 

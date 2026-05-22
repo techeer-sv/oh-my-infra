@@ -108,32 +108,55 @@ services:
     labels:
       logging: enabled
 
-  secured-grafana:
-    image: grafana/grafana:12.4
-    container_name: secured-grafana
-    volumes:
-      - grafana-data-2:/var/lib/grafana
-      - ../grafana/provisioning:/etc/grafana/provisioning
-      - ../grafana:/etc/grafana/dashboards
+  # secured-grafana:
+  #   image: grafana/grafana:12.4
+  #   container_name: secured-grafana
+  #   volumes:
+  #     - grafana-data-2:/var/lib/grafana
+  #     - ../grafana/provisioning:/etc/grafana/provisioning
+  #     - ../grafana:/etc/grafana/dashboards
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   networks:
+  #     - logging-network
+  #     - traefik-network
+  #     - grafana-network
+  #     - tracing-network
+  #     - profiling-network
+  #   cpus: "0.5"
+  #   mem_limit: "1G"
+  #   labels:
+  #     logging: enabled
+  #     traefik.enable: "true"
+  #     traefik.docker.network: "traefik-network"
+  #     traefik.http.services.grafana.loadbalancer.server.port: "3000"
+  #     traefik.http.routers.grafana.rule: "PathPrefix(`/`)"
+  #     traefik.http.routers.grafana.entrypoints: "web"
+  #     traefik.http.routers.grafana.middlewares: "crowdsec@docker"
+  #     traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.enabled: true
+  #     traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapikey: "traefik-secret-key" # 꼭 바꾸삼
+  #     traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapischeme: "http"
+  #     traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapihost: "crowdsec:8080"
+  #     traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdsecappsecenabled: "true"
+  #     traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdsecappsechost: "crowdsec:7422"
+
+  whoami:
+    image: traefik/whoami
+    container_name: whoami
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     networks:
-      - logging-network
       - traefik-network
-      - grafana-network
-      - tracing-network
-      - profiling-network
-    cpus: "0.5"
-    mem_limit: "1G"
+    cpus: "0.1"
+    mem_limit: "64m"
     labels:
       logging: enabled
       traefik.enable: "true"
       traefik.docker.network: "traefik-network"
-      traefik.http.services.grafana.loadbalancer.server.port: "3000"
-      traefik.http.routers.grafana.rule: "PathPrefix(`/`)"
-      traefik.http.routers.grafana.entrypoints: "web"
-      traefik.http.routers.grafana.middlewares: "crowdsec@docker"
+      traefik.http.services.whoami.loadbalancer.server.port: "80"
+      traefik.http.routers.whoami.rule: "PathPrefix(`/`)"
+      traefik.http.routers.whoami.entrypoints: "web"
+      traefik.http.routers.whoami.middlewares: "crowdsec@docker"
       traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.enabled: true
       traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapikey: "traefik-secret-key" # 꼭 바꾸삼
       traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdseclapischeme: "http"
@@ -141,20 +164,20 @@ services:
       traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdsecappsecenabled: "true"
       traefik.http.middlewares.crowdsec.plugin.crowdsec-bouncer-traefik-plugin.crowdsecappsechost: "crowdsec:7422"
 
-  crowdsec-web-ui:
-    image: ghcr.io/theduffman85/crowdsec-web-ui:2026.5.3
-    container_name: crowdsec_web_ui
-    ports:
-      - "3001:3000"
-    environment:
-      - CROWDSEC_URL=http://crowdsec:8080
-      - CROWDSEC_USER=crowdsec-web-ui # 꼭 바꾸삼 add_user.sh 참고
-      - CROWDSEC_PASSWORD=testing # 꼭 바꾸삼
-    volumes:
-      - ui-data:/app/data
-    restart: unless-stopped
-    networks:
-      - crowdsec-network
+  # crowdsec-web-ui:
+  #   image: ghcr.io/theduffman85/crowdsec-web-ui:2026.5.3
+  #   container_name: crowdsec_web_ui
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     - CROWDSEC_URL=http://crowdsec:8080
+  #     - CROWDSEC_USER=crowdsec-web-ui # 꼭 바꾸삼 add_user.sh 참고
+  #     - CROWDSEC_PASSWORD=testing # 꼭 바꾸삼
+  #   volumes:
+  #     - ui-data:/app/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - crowdsec-network
   
   alloy:
     image: grafana/alloy:v1.13.2

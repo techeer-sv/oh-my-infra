@@ -66,9 +66,27 @@ services:
       traefik.http.services.grafana.loadbalancer.server.port: "3000"
       traefik.http.routers.grafana.rule: "PathPrefix(`/`)"
       traefik.http.routers.grafana.entrypoints: "web"
+      
+  crowdsec-web-ui:
+    image: ghcr.io/theduffman85/crowdsec-web-ui:2026.5.3
+    container_name: crowdsec_web_ui
+    ports:
+      - "3001:3000"
+    environment:
+      - CROWDSEC_URL=http://${CROWDSEC_HOST}:8080
+      - CROWDSEC_USER=crowdsec-web-ui # 꼭 바꾸삼 add_user.sh 참고
+      - CROWDSEC_PASSWORD=testing # 꼭 바꾸삼
+    volumes:
+      - ui-data:/app/data
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    labels:
+      logging: enabled
 
 volumes:
   grafana-data:
+  ui-data:
 
 networks:
   traefik-network:

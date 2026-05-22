@@ -30,7 +30,7 @@ datasources:
     access: proxy
     editable: true
 
-  - name: pyroscope
+  - name: grafana-pyroscope-datasource
     type: grafana-pyroscope-datasource
     uid: pyroscope
     url: http://pyroscope-query-frontend:4040

@@ -183,7 +183,7 @@ services:
   
   secured-alloy:
     image: grafana/alloy:v1.13.2
-    container_name: securedalloy
+    container_name: secured-alloy
     command: run /etc/alloy/config.alloy
     volumes:
       - ./alloy-config.alloy:/etc/alloy/config.alloy

@@ -38,3 +38,7 @@ scrape_configs:
   - job_name: "crowdsec-cadvisor"
     static_configs:
       - targets: ["100.68.188.28:8081"]
+  
+  - job_name: "zdt-traefik"
+    static_configs:
+      - targets: ["100.116.150.4:8091"]

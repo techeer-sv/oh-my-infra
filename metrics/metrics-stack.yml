@@ -32,6 +32,7 @@ services:
       - ./prometheus/:/etc/prometheus/
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.enable-remote-write-receiver'
       - '--storage.tsdb.retention.time=15d'
       - '--storage.tsdb.retention.size=3GB'
       - '--web.enable-lifecycle'
